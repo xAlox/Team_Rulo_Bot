@@ -66,7 +66,7 @@ Team Members
 ### ⚙️ Components ⚙️
 
 | Name | Product | Price | Quantity |
-| ----------- | ----------- | ----------- |
+| ----------- | ----------- | ----------- | ----------- |
 | Camera | [`Raspberry Pi Camera Module V2`](https://a.co/d/9sWVjcM) | $20 | 1 |
 | Battery | [`3S Lipo Battery 2200mAh 11.1V`](https://a.co/d/3V4ITBv) | $34 | 1 |
 | Traction motor | [`Lego NXT Servo Motor`](https://ebay.us/m/edWc1H) | $8 | 1 |

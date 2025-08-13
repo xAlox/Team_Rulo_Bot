@@ -65,15 +65,15 @@ Team Members
 
 ### ⚙️ Components ⚙️
 
-| Name | Product | Price |
+| Name | Product | Price | Quantity |
 | ----------- | ----------- | ----------- |
-| Camera | [`Raspberry Pi Camera Module V2`](https://a.co/d/9sWVjcM) | $20 | 
-| Battery | [`3S Lipo Battery 2200mAh 11.1V`](https://a.co/d/3V4ITBv) | $34 | 
-| Traction motor | [`Lego NXT Servo Motor`](https://ebay.us/m/edWc1H) | $8 |
-| Motor driver | [`DRV8871 Motor driver`](https://a.co/d/99h8can) | $23 |
-| Turning Motor | [`MG995 Servo Motor`](https://a.co/d/fiWS9WQ) | $15 |
-| Raspberry Pi | [`RasTech Raspberry Pi 5 8GB`](https://a.co/d/0iE3Rae) | $99 |
-| Voltage converter | [`Mini360 DC-DC Voltage Power Converter`](https://a.co/d/gaePhae) | $8 |
+| Camera | [`Raspberry Pi Camera Module V2`](https://a.co/d/9sWVjcM) | $20 | 1 |
+| Battery | [`3S Lipo Battery 2200mAh 11.1V`](https://a.co/d/3V4ITBv) | $34 | 1 |
+| Traction motor | [`Lego NXT Servo Motor`](https://ebay.us/m/edWc1H) | $8 | 1 |
+| Motor driver | [`DRV8871 Motor driver`](https://a.co/d/99h8can) | $23 | 1 |
+| Turning Motor | [`MG995 Servo Motor`](https://a.co/d/fiWS9WQ) | $15 | 1 |
+| Raspberry Pi | [`RasTech Raspberry Pi 5 8GB`](https://a.co/d/0iE3Rae) | $99 | 1 |
+| Voltage converter | [`Mini360 DC-DC Voltage Power Converter`](https://a.co/d/gaePhae) | $8 | 3 |
 
 **Total Car Hardware Cost: $207 USD**
 

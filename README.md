@@ -75,7 +75,7 @@ Team Members
 | Raspberry Pi | [`RasTech Raspberry Pi 5 8GB`](https://a.co/d/0iE3Rae) | $99 |
 | Voltage converter | [`Mini360 DC-DC Voltage Power Converter`](https://a.co/d/gaePhae) | $8 |
 
-**Total Car Hardware Cost: $207 CAD**
+**Total Car Hardware Cost: $207 USD**
 
 
 &nbsp;

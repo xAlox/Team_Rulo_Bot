@@ -64,6 +64,9 @@
 #### Power and Wiring
 #### Sensors
 #### Schematic
+
+![Imagen de WhatsApp 2025-08-14 a las 13 37 32_29657814](https://github.com/user-attachments/assets/e6b29fac-5bbe-44b5-b904-1bcb2de3b229)
+
 #### Potential Improvements
 
 ---

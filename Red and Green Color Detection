@@ -1,0 +1,51 @@
+# Red and Green Color Detection - Team Rulo Bot
+
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+red_lower1, red_upper1 = (0, 120, 70), (10, 255, 255)
+red_lower2, red_upper2 = (170, 120, 70), (180, 255, 255)
+green_lower, green_upper = (35, 80, 60), (85, 255, 255)
+
+MIN_AREA = 1200
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        continue
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    mask_r1 = cv2.inRange(hsv, np.array(red_lower1), np.array(red_upper1))
+    mask_r2 = cv2.inRange(hsv, np.array(red_lower2), np.array(red_upper2))
+    mask_red = cv2.bitwise_or(mask_r1, mask_r2)
+
+    mask_green = cv2.inRange(hsv, np.array(green_lower), np.array(green_upper))
+
+    cnts_r, _ = cv2.findContours(mask_red, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if cnts_r:
+        c = max(cnts_r, key=cv2.contourArea)
+        if cv2.contourArea(c) > MIN_AREA:
+            x,y,w,h = cv2.boundingRect(c)
+            cv2.rectangle(frame, (x,y), (x+w,y+h), (0,0,255), 2)
+            cv2.putText(frame, "RED", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2)
+
+    cnts_g, _ = cv2.findContours(mask_green, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if cnts_g:
+        c = max(cnts_g, key=cv2.contourArea)
+        if cv2.contourArea(c) > MIN_AREA:
+            x,y,w,h = cv2.boundingRect(c)
+            cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 2)
+            cv2.putText(frame, "GREEN", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,255,0), 2)
+
+    cv2.imshow("Red & Green Detection - Team Rulo Bot", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()

@@ -96,11 +96,11 @@
 
 ![Imagen de WhatsApp 2025-08-23 a las 19 16 47_8771e2f9](https://github.com/user-attachments/assets/29deb411-65f3-4a44-be79-c59dec93f99c)
 
-- ![Alfonso Duverge Urbaez]
+- [Alfonso Duverge Urbaez]
 - 
-- ![Wilmer De Jesus Reyes Castillo]
+- [Wilmer De Jesus Reyes Castillo]
 - 
-- ![Emil Gustavo Velasquez Canela]
+- [Emil Gustavo Velasquez Canela]
 
 ### Robot Photos (All Sides / Top / Bottom)
 
@@ -117,11 +117,9 @@
 ![Imagen de WhatsApp 2025-09-10 a las 21 23 18_63f6fab2](https://github.com/user-attachments/assets/ee56a6c2-5570-4eb1-90ed-79a46c1e125c)
 
 
-- En pista / On track
+
   
 ### Performance Videos (Open / Obstacle)
-
-OPEN: 
 
 
 AUTONOMOUS ROBOT TEST – Forward and Reverse Motion (https://youtube.com/shorts/DLdXPhjLxYY)

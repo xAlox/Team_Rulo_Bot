@@ -124,12 +124,17 @@
 OPEN: 
 
 
-Autonomous Robot Test – Forward and Reverse Motion (https://youtube.com/shorts/DLdXPhjLxYY)
+AUTONOMOUS ROBOT TEST – Forward and Reverse Motion (https://youtube.com/shorts/DLdXPhjLxYY)
 
-Autonomous Robot Test - Vision Test -  Red and Green Color Detection Test (https://youtu.be/MnDNOvI_E2s)
+AUTONOMOUS ROBOT TEST  - Vision Test -  Red and Green Color Detection Test (https://youtu.be/MnDNOvI_E2s)
+
 TEST FORWARD AND BACKWARD - https://www.youtube.com/shorts/6pMi8gZCbPo
+
 OPEN CHALLENGE - CLOCKWISE - https://www.youtube.com/watch?v=ao2uUjXZPo4
+
 OPEN CHALLENGE - COUNTERCLOCKWISE - https://www.youtube.com/watch?v=F6bJ-BMMgI8
+
+
 ---
 
 ## Testing & Validation

@@ -105,20 +105,31 @@
 ### Robot Photos (All Sides / Top / Bottom)
 
 - Vista superior / Top view
-- 
-- Vista inferior / Bottom view  
+![Imagen de WhatsApp 2025-09-10 a las 21 23 18_842bc3e9](https://github.com/user-attachments/assets/ff5a0810-a045-4091-b874-07834a525935)
 
-- Frontal / Front  
+
+- Vista lateral / side view
+
+![Imagen de WhatsApp 2025-09-10 a las 21 23 18_51f527b5](https://github.com/user-attachments/assets/589cc5e2-9df6-4363-a30e-01bb171a2bc5)
+
+
+- Frontal / Front
+![Imagen de WhatsApp 2025-09-10 a las 21 23 18_63f6fab2](https://github.com/user-attachments/assets/ee56a6c2-5570-4eb1-90ed-79a46c1e125c)
+
 
 - En pista / On track
   
 ### Performance Videos (Open / Obstacle)
 
+OPEN: 
+
 
 Autonomous Robot Test – Forward and Reverse Motion (https://youtube.com/shorts/DLdXPhjLxYY)
 
 Autonomous Robot Test - Vision Test -  Red and Green Color Detection Test (https://youtu.be/MnDNOvI_E2s)
-
+TEST FORWARD AND BACKWARD - https://www.youtube.com/shorts/6pMi8gZCbPo
+OPEN CHALLENGE - CLOCKWISE - https://www.youtube.com/watch?v=ao2uUjXZPo4
+OPEN CHALLENGE - COUNTERCLOCKWISE - https://www.youtube.com/watch?v=F6bJ-BMMgI8
 ---
 
 ## Testing & Validation

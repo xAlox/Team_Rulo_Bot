@@ -97,9 +97,9 @@
 ![Imagen de WhatsApp 2025-08-23 a las 19 16 47_8771e2f9](https://github.com/user-attachments/assets/29deb411-65f3-4a44-be79-c59dec93f99c)
 
 - [Alfonso Duverge Urbaez]
-- 
+  
 - [Wilmer De Jesus Reyes Castillo]
-- 
+  
 - [Emil Gustavo Velasquez Canela]
 
 ### Robot Photos (All Sides / Top / Bottom)

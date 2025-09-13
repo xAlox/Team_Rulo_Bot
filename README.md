@@ -164,3 +164,7 @@ OPEN CHALLENGE - COUNTERCLOCKWISE - https://www.youtube.com/watch?v=F6bJ-BMMgI8
 
 ---
 
+<img width="960" height="1280" alt="up_signal" src="https://github.com/user-attachments/assets/adbf3e11-75f0-4433-b82c-ff1d915a0464" />
+
+---
+

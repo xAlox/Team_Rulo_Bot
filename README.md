@@ -11,6 +11,7 @@
 - [Software](#software)
 - [Engineering Journal](#engineering-journal)
 - [Photos & Videos](#photos--videos)
+
 - [Testing & Validation](#testing--validation)
 - [Project Management](#project-management)
 - [How to Build](#how-to-build)
@@ -163,4 +164,4 @@ OPEN CHALLENGE - COUNTERCLOCKWISE - https://www.youtube.com/watch?v=F6bJ-BMMgI8
 ### Launch Commands
 
 ---
-
+<img width="960" height="1280" alt="up_signal" src="https://github.com/user-attachments/assets/adbf3e11-75f0-4433-b82c-ff1d915a0464" />

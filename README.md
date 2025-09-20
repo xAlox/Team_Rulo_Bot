@@ -58,7 +58,7 @@
 
 #### Design
 
-[Imagen de WhatsApp 2025-09-17 a las 16 39 46_ed2e0446](https://github.com/user-attachments/assets/d28337ba-3f86-4259-9598-0add4eee0ef6)
+![Imagen de WhatsApp 2025-09-17 a las 16 39 46_ed2e0446](https://github.com/user-attachments/assets/d28337ba-3f86-4259-9598-0add4eee0ef6)
 
 
 #### Motors
@@ -70,8 +70,8 @@
 
 #### Power and Wiring
 
-[Imagen de WhatsApp 2025-09-17 a las 16 39 46_5ed24bac](https://github.com/user-attachments/assets/6ded3474-6ed6-440d-841a-7cd5bd2a3e89)
-[Imagen de WhatsApp 2025-09-17 a las 16 51 18_32ba68bb](https://github.com/user-attachments/assets/ad3b5b2f-a5f9-4937-9d7e-7a979d43140c)
+![Imagen de WhatsApp 2025-09-17 a las 16 39 46_5ed24bac](https://github.com/user-attachments/assets/6ded3474-6ed6-440d-841a-7cd5bd2a3e89)
+![Imagen de WhatsApp 2025-09-17 a las 16 51 18_32ba68bb](https://github.com/user-attachments/assets/ad3b5b2f-a5f9-4937-9d7e-7a979d43140c)
 
 
 

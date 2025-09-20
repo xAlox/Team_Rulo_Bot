@@ -111,12 +111,15 @@
 ![Imagen de WhatsApp 2025-08-23 a las 19 16 47_8771e2f9](https://github.com/user-attachments/assets/29deb411-65f3-4a44-be79-c59dec93f99c)
 
 - [Alfonso Duverge Urbaez]
-[Imagen de WhatsApp 2025-09-18 a las 18 30 46_69a62026](https://github.com/user-attachments/assets/7e40e95a-828c-4b00-8adc-9d53fa350c04)
+  
+![Imagen de WhatsApp 2025-09-18 a las 18 30 46_69a62026](https://github.com/user-attachments/assets/7e40e95a-828c-4b00-8adc-9d53fa350c04)
 
 - [Wilmer De Jesus Reyes Castillo]
-[Imagen de WhatsApp 2025-09-18 a las 18 30 46_d27cedc8](https://github.com/user-attachments/assets/d8a99eaf-8ccd-467a-b0cf-655299f9185f)
+  
+![Imagen de WhatsApp 2025-09-18 a las 18 30 46_d27cedc8](https://github.com/user-attachments/assets/d8a99eaf-8ccd-467a-b0cf-655299f9185f)
   
 - [Emil Gustavo Velasquez Canela]
+  
 ![Imagen de WhatsApp 2025-09-18 a las 18 30 46_6bc5796d](https://github.com/user-attachments/assets/25f1e48c-b0bc-413d-9e2e-95132b73f158)
 
 ### Robot Photos (All Sides / Top / Bottom)

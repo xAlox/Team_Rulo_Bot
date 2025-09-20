@@ -55,14 +55,28 @@
 
 ### Mobility Management
 #### Chassis
+
 #### Design
+
+[Imagen de WhatsApp 2025-09-17 a las 16 39 46_ed2e0446](https://github.com/user-attachments/assets/d28337ba-3f86-4259-9598-0add4eee0ef6)
+
+
 #### Motors
+
 
 ---
 
 ### Power and Sense Management
+
 #### Power and Wiring
+
+[Imagen de WhatsApp 2025-09-17 a las 16 39 46_5ed24bac](https://github.com/user-attachments/assets/6ded3474-6ed6-440d-841a-7cd5bd2a3e89)
+[Imagen de WhatsApp 2025-09-17 a las 16 51 18_32ba68bb](https://github.com/user-attachments/assets/ad3b5b2f-a5f9-4937-9d7e-7a979d43140c)
+
+
+
 #### Sensors
+
 #### Schematic
 
 ![Imagen de WhatsApp 2025-08-14 a las 13 37 32_29657814](https://github.com/user-attachments/assets/e6b29fac-5bbe-44b5-b904-1bcb2de3b229)
@@ -97,10 +111,13 @@
 ![Imagen de WhatsApp 2025-08-23 a las 19 16 47_8771e2f9](https://github.com/user-attachments/assets/29deb411-65f3-4a44-be79-c59dec93f99c)
 
 - [Alfonso Duverge Urbaez]
-  
+[Imagen de WhatsApp 2025-09-18 a las 18 30 46_69a62026](https://github.com/user-attachments/assets/7e40e95a-828c-4b00-8adc-9d53fa350c04)
+
 - [Wilmer De Jesus Reyes Castillo]
+[Imagen de WhatsApp 2025-09-18 a las 18 30 46_d27cedc8](https://github.com/user-attachments/assets/d8a99eaf-8ccd-467a-b0cf-655299f9185f)
   
 - [Emil Gustavo Velasquez Canela]
+![Imagen de WhatsApp 2025-09-18 a las 18 30 46_6bc5796d](https://github.com/user-attachments/assets/25f1e48c-b0bc-413d-9e2e-95132b73f158)
 
 ### Robot Photos (All Sides / Top / Bottom)
 

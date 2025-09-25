@@ -78,6 +78,8 @@ The two-level design significantly increases torsional stiffness, preventing cha
 
 In summary, the chassis combines **strength, modularity, and accessibility**: a fully 3D-printed structure optimized for competition performance while remaining easy to maintain and upgrade.
 
+ #### Potential Improvements
+
 
 
 ---

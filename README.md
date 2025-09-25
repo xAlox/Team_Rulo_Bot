@@ -27,11 +27,22 @@
 
 ---
 
-## Team
+### Team Rulo Bot: 
 
-* Alfonso Duverge Urbaez, 20, alfonso1872002@gmail.com  
-* Wilmer De Jesus Reyes Castillo, 18, reyeswilmer648@gmail.com  
-* Emil Gustavo Velasquez Canela, 19, emilgvelasquez@gmail.com  
+![Imagen de WhatsApp 2025-08-23 a las 19 16 47_8771e2f9](https://github.com/user-attachments/assets/29deb411-65f3-4a44-be79-c59dec93f99c)
+
+- [Alfonso Duverge Urbaez]
+  
+![Imagen de WhatsApp 2025-09-18 a las 18 30 46_69a62026](https://github.com/user-attachments/assets/7e40e95a-828c-4b00-8adc-9d53fa350c04)
+
+- [Wilmer De Jesus Reyes Castillo]
+  
+![Imagen de WhatsApp 2025-09-18 a las 18 30 46_d27cedc8](https://github.com/user-attachments/assets/d8a99eaf-8ccd-467a-b0cf-655299f9185f)
+  
+- [Emil Gustavo Velasquez Canela]
+  
+![Imagen de WhatsApp 2025-09-18 a las 18 30 46_6bc5796d](https://github.com/user-attachments/assets/25f1e48c-b0bc-413d-9e2e-95132b73f158)
+
 
 ---
 
@@ -65,11 +76,11 @@ The chassis is fully **3D-printed** and modeled in **SolidWorks**, then manufact
 
 **Ackermann Steering System.**  
 
-The steering system is a **fully 3D-printed Ackermann mechanism**, consisting of printed steering knuckles, tie rods, and a servo mount. An **MG995 servo motor** actuates the bell-crank mechanism, ensuring realistic wheel turning geometry and smooth maneuverability. Mechanical stops are integrated into the design to prevent over-travel and protect the servo. This system was optimized to operate within the servo’s safe range (46°–140°).
+The steering system is a **fully 3D-printed Ackermann mechanism**, consisting of printed steering knuckles, tie rods, and a servo mount. An **MG995 servo motor** actuates the bell-crank mechanism, ensuring realistic wheel turning geometry and smooth maneuverability. Mechanical stops are integrated into the design to prevent over-travel and protect the servo. This system was optimized to operate within the servo’s safe range (24°–144°).
 
 **Material selection.**
 
-* The **steering knuckles** and **wheel supports**  are printed in **ABS**, providing greater strength, thermal stability, and impact resistance.  
+* The  **wheel supports**  are printed in **ABS**, providing greater strength, thermal stability, and impact resistance.  
 * The remaining parts, such as covers and the camera mast, are printed in **PLA** for faster iteration and reduced weight.
 
 **Fastening & serviceability.**  
@@ -256,22 +267,6 @@ Future iterations could include fuse protection on the LiPo input and each 5 V r
 ---
 
 ## Photos & Videos
-
-### Team Photos
-
-![Imagen de WhatsApp 2025-08-23 a las 19 16 47_8771e2f9](https://github.com/user-attachments/assets/29deb411-65f3-4a44-be79-c59dec93f99c)
-
-- [Alfonso Duverge Urbaez]
-  
-![Imagen de WhatsApp 2025-09-18 a las 18 30 46_69a62026](https://github.com/user-attachments/assets/7e40e95a-828c-4b00-8adc-9d53fa350c04)
-
-- [Wilmer De Jesus Reyes Castillo]
-  
-![Imagen de WhatsApp 2025-09-18 a las 18 30 46_d27cedc8](https://github.com/user-attachments/assets/d8a99eaf-8ccd-467a-b0cf-655299f9185f)
-  
-- [Emil Gustavo Velasquez Canela]
-  
-![Imagen de WhatsApp 2025-09-18 a las 18 30 46_6bc5796d](https://github.com/user-attachments/assets/25f1e48c-b0bc-413d-9e2e-95132b73f158)
 
 ### Robot Photos (All Sides / Top / Bottom)
 

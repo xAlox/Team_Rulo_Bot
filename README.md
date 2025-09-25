@@ -95,7 +95,7 @@ In summary, the chassis combines **strength, modularity, and accessibility**: a 
 
 
 #### Motors
-#### ⚙️ Motors
+
 The vehicle uses two active actuators: one for traction and one for steering. Both are integrated into the modular 3D-printed chassis and controlled by the Arduino Nano, with commands received from the Raspberry Pi 5.
 
 **Traction Motor**  
@@ -156,9 +156,9 @@ These improvements would improve **precision, durability, and control**, especia
 
 ### Power and Sense Management
 
-#### Power and Wiring
 
 ![Imagen de WhatsApp 2025-09-17 a las 16 39 46_5ed24bac](https://github.com/user-attachments/assets/6ded3474-6ed6-440d-841a-7cd5bd2a3e89)
+
 ![Imagen de WhatsApp 2025-09-17 a las 16 51 18_32ba68bb](https://github.com/user-attachments/assets/ad3b5b2f-a5f9-4937-9d7e-7a979d43140c)
 
 
@@ -170,6 +170,7 @@ For both the **Open Challenge** and the **Obstacle Challenge**, the vehicle reli
 This approach eliminates the need for ultrasonic sensors or IMUs, reducing system complexity and weight. However, it also introduces trade-offs that must be carefully considered.
 
 **Advantages (Pros):**
+
 - Simple architecture: only one sensing component to calibrate and maintain.  
 - Weight reduction: fewer components, lighter overall design.  
 - Cost efficiency: lower bill of materials compared to multi-sensor setups.  
@@ -177,17 +178,20 @@ This approach eliminates the need for ultrasonic sensors or IMUs, reducing syste
 - Compliance: fewer hardware points of failure, easier inspection during WRO competition checks.  
 
 **Disadvantages (Cons):**
+
 - Lighting sensitivity: performance depends heavily on ambient lighting; requires frequent mask calibration at each venue.  
 - Processing load: real-time vision requires significant compute resources, relying on the Raspberry Pi 5 to maintain adequate FPS.  
 - Failure risk: if the camera fails, the robot loses all sensing capability (no redundancy).  
 - Limited robustness: vision may be affected by reflections, shadows, or worn playfield surfaces.  
 
 **Summary:**  
+
 The innomaker USB UVC 2.0 camera provides a **minimalistic and efficient sensing solution** for WRO Future Engineers, balancing cost, simplicity, and functionality. Nevertheless, it demands **careful calibration and robust vision algorithms** to mitigate the lack of distance sensing and lighting variability.
 
 ---
 
 #### Potential Improvements
+
 While the camera-only approach is functional, future iterations of the robot could be improved by:
 
 1. Integrating an **IMU (gyroscope + accelerometer)** to improve orientation awareness and stability in sharp turns.  
@@ -199,9 +203,36 @@ These improvements would make the sensing system more **robust, adaptable to dif
 
 #### Schematic
 
+The schematic shows the complete power distribution and control system of the robot. It integrates the 3S LiPo battery, voltage regulators, the Arduino Nano, the Raspberry Pi 5, and the actuators (servo and DC motor).
+
 ![Imagen de WhatsApp 2025-08-14 a las 13 37 32_29657814](https://github.com/user-attachments/assets/e6b29fac-5bbe-44b5-b904-1bcb2de3b229)
 
+**Power Source**  
+
+The main source is a **3S LiPo battery (11.1 V, 2200 mAh)**. A main power switch (SW2) is placed between the battery and the system to allow safe startup and shutdown.
+
+**Voltage Regulation**  
+
+Three **Mini360 DC-DC converters** step down the 11.1 V battery to 5 V: one dedicated to the **Raspberry Pi 5**, one for the **MG995 steering servo**, and one for the **DRV8871 motor driver logic**. The Mini360 converters were chosen because of their compact size and ease of integration into the chassis. The **Arduino Nano is powered directly from the Raspberry Pi 5** via USB, sharing the same 5 V rail. This distribution ensures that each critical subsystem (compute, steering, and motor control) has its own regulated supply, reducing noise coupling and improving reliability.
+
+**Control Electronics**  
+
+The **Arduino Nano** reads the encoder from the LEGO NXT DC motor, controls the MG995 servo through PWM, and sends commands to the DRV8871 motor driver to control traction. It is powered directly by the Raspberry Pi 5. The **Raspberry Pi 5** runs computer vision using OpenCV, interfaces with the Innomaker UVC 2.0 USB camera, and sends steering and speed commands to the Arduino Nano via serial communication.
+
+**Actuators**  
+
+The **MG995 servo** is connected to the Arduino Nano (PWM) and powered by its dedicated Mini360 regulator. The **LEGO NXT DC Motor 9842** is connected to the DRV8871 motor driver, which is controlled by the Arduino Nano through IN1/IN2. The driver receives direct 11.1 V from the LiPo for the power stage and 5 V from a Mini360 for its logic.
+
+**Feedback Devices**  
+
+The **encoder from the LEGO NXT motor** is connected to the Arduino Nano digital inputs, providing lap and distance estimation (optional closed-loop control). A status LED (D1) connected to the Arduino Nano is used for debugging and arming indication.
+
+---
+
 #### Potential Improvements
+
+Future iterations could include fuse protection on the LiPo input and each 5 V rail, TVS diodes or snubber circuits for the DC motor to protect against voltage spikes, higher-current buck converters to replace the Mini360 units for better load stability, additional filter capacitors near the servo and motor driver for noise suppression, and eventually a custom PCB to integrate regulators, the Arduino, and connectors into a more compact and reliable form factor.
+
 
 ---
 

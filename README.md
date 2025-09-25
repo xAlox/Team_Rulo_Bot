@@ -41,7 +41,7 @@
 
 | Name            | Product                                                                 | Price | Quantity |
 |-----------------|-------------------------------------------------------------------------|-------|----------|
-| Camera          | [Raspberry Pi Camera Module V2](https://a.co/d/9sWVjcM)                 | $20   | 1        |
+| Camera          | [innomaker Cámara UVC USB 2.0]( https://www.amazon.com/dp/B0CNCSFQC1)   | $20   | 1        |
 | Battery         | [3S Lipo Battery 2200mAh 11.1V](https://a.co/d/3V4ITBv)                 | $34   | 1        |
 | Traction Motor  | [Lego NXT Servo Motor](https://ebay.us/m/edWc1H)                        | $8    | 1        |
 | Motor Driver    | [DRV8871 Motor Driver](https://a.co/d/99h8can)                          | $23   | 1        |
@@ -54,7 +54,56 @@
 ---
 
 ### Mobility Management
+
 #### Chassis
+
+### Mobility Management
+
+#### 🛠️ Chassis
+
+### Mobility Management
+
+#### 🛠️ Chassis
+Got it ✅. Here’s the corrected version in English, with the sentence about the **608ZZ bearings** removed:
+
+---
+
+### Mobility Management
+
+#### 🛠️ Chassis
+
+### Mobility Management
+
+#### 🛠️ Chassis
+### Mobility Management
+
+#### 🛠️ Chassis
+
+The chassis is fully **3D-printed** and modeled in **SolidWorks**, then manufactured using a **Bambu Lab A1 printer**. It follows a **modular two-level architecture**, designed for easy assembly, maintenance, and compliance with **WRO Future Engineers** regulations (≤ 300 × 200 × 300 mm).
+
+* **Lower level:** Contains the **LEGO NXT DC motor (9842, with encoder)**, which is **directly coupled to the rear axle** (no belt system). This direct drive ensures efficient torque transfer and minimizes mechanical losses. The motor is secured on a **dedicated printed motor mount**, integrated into the lower deck for maximum rigidity and precise alignment with the axle. The lower level also houses the **3S LiPo Battery 2200mAh 11.1V** and three **Mini360 DC-DC converters**. The battery is mounted in a dedicated bay that allows **fast hot-swap**, minimizing downtime during testing or competition.
+
+* **Upper level:** Holds the **Raspberry Pi 5 (8GB)**, **Arduino Nano**, and additional electronics. This platform is mechanically isolated from the drivetrain to reduce vibration exposure to sensitive components. The **second level is attached to the lower deck using threaded standoffs**, creating a rigid but serviceable structure.
+
+**Ackermann Steering System.**  
+The steering system is a **fully 3D-printed Ackermann mechanism**, consisting of printed steering knuckles, tie rods, and a servo mount. An **MG995 servo motor** actuates the bell-crank mechanism, ensuring realistic wheel turning geometry and smooth maneuverability. Mechanical stops are integrated into the design to prevent over-travel and protect the servo. This system was optimized to operate within the servo’s safe range (46°–140°).
+
+**Material selection.**
+* The **steering knuckles** and **wheel supports**  are printed in **ABS**, providing greater strength, thermal stability, and impact resistance.  
+* The remaining parts, such as covers and the camera mast, are printed in **PLA** for faster iteration and reduced weight.
+
+**Fastening & serviceability.**  
+All major parts are fixed with **heat-set threaded inserts** and M3 machine screws. This provides strong, reusable threads and makes repeated disassembly/reassembly possible without damaging the plastic. The modular assembly allows each subsystem (drive, steering, electronics, battery bay, camera mount) to be removed independently for quick service or replacement.
+
+**Rigidity & accessibility.**  
+The two-level design significantly increases torsional stiffness, preventing chassis flex during high-speed turns or obstacle maneuvers. The upper level can be detached in minutes, giving direct access to the drivetrain and battery compartment. Cable routing channels are integrated into the design to keep wiring organized and away from moving parts.
+
+In summary, the chassis combines **strength, modularity, and accessibility**: a fully 3D-printed structure optimized for competition performance while remaining easy to maintain and upgrade.
+
+
+
+---
+
 
 #### Design
 

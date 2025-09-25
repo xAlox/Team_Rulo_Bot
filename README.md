@@ -41,7 +41,7 @@
 
 | Name            | Product                                                                 | Price | Quantity |
 |-----------------|-------------------------------------------------------------------------|-------|----------|
-| Camera          | [innomaker Cámara UVC USB 2.0]( https://www.amazon.com/dp/B0CNCSFQC1)   | $20   | 1        |
+| Camera          | [innomaker Cámara UVC USB 2.0]( https://www.amazon.com/dp/B0CNCSFQC1)   | $18   | 1        |
 | Battery         | [3S Lipo Battery 2200mAh 11.1V](https://a.co/d/3V4ITBv)                 | $34   | 1        |
 | Traction Motor  | [Lego NXT Servo Motor](https://ebay.us/m/edWc1H)                        | $8    | 1        |
 | Motor Driver    | [DRV8871 Motor Driver](https://a.co/d/99h8can)                          | $23   | 1        |
@@ -49,7 +49,7 @@
 | Raspberry Pi    | [RasTech Raspberry Pi 5 8GB](https://a.co/d/0iE3Rae)                    | $99   | 1        |
 | Voltage Converter | [Mini360 DC-DC Voltage Power Converter](https://a.co/d/gaePhae)       | $8    | 3        |
 
-**Total Car Hardware Cost:** **$207 USD**
+**Total Car Hardware Cost:** **$205 USD**
 
 ---
 
@@ -64,16 +64,20 @@ The chassis is fully **3D-printed** and modeled in **SolidWorks**, then manufact
 * **Upper level:** Holds the **Raspberry Pi 5 (8GB)**, **Arduino Nano**, and additional electronics. This platform is mechanically isolated from the drivetrain to reduce vibration exposure to sensitive components. The **second level is attached to the lower deck using threaded standoffs**, creating a rigid but serviceable structure.
 
 **Ackermann Steering System.**  
+
 The steering system is a **fully 3D-printed Ackermann mechanism**, consisting of printed steering knuckles, tie rods, and a servo mount. An **MG995 servo motor** actuates the bell-crank mechanism, ensuring realistic wheel turning geometry and smooth maneuverability. Mechanical stops are integrated into the design to prevent over-travel and protect the servo. This system was optimized to operate within the servo’s safe range (46°–140°).
 
 **Material selection.**
+
 * The **steering knuckles** and **wheel supports**  are printed in **ABS**, providing greater strength, thermal stability, and impact resistance.  
 * The remaining parts, such as covers and the camera mast, are printed in **PLA** for faster iteration and reduced weight.
 
 **Fastening & serviceability.**  
+
 All major parts are fixed with **heat-set threaded inserts** and M3 machine screws. This provides strong, reusable threads and makes repeated disassembly/reassembly possible without damaging the plastic. The modular assembly allows each subsystem (drive, steering, electronics, battery bay, camera mount) to be removed independently for quick service or replacement.
 
 **Rigidity & accessibility.**  
+
 The two-level design significantly increases torsional stiffness, preventing chassis flex during high-speed turns or obstacle maneuvers. The upper level can be detached in minutes, giving direct access to the drivetrain and battery compartment. Cable routing channels are integrated into the design to keep wiring organized and away from moving parts.
 
 In summary, the chassis combines **strength, modularity, and accessibility**: a fully 3D-printed structure optimized for competition performance while remaining easy to maintain and upgrade.
@@ -91,6 +95,61 @@ In summary, the chassis combines **strength, modularity, and accessibility**: a 
 
 
 #### Motors
+#### ⚙️ Motors
+The vehicle uses two active actuators: one for traction and one for steering. Both are integrated into the modular 3D-printed chassis and controlled by the Arduino Nano, with commands received from the Raspberry Pi 5.
+
+**Traction Motor**  
+
+- Component: **LEGO NXT DC Motor 9842 (with encoder)**  
+- Placement: Mounted on the lower level of the chassis, fixed with a dedicated 3D-printed motor mount.  
+- Coupling: The motor is **directly connected to the rear axle** (no belt or gear reduction). This configuration ensures efficient torque transfer and reduces mechanical complexity.  
+- Performance: Powered at 11.1 V from the **3S LiPo Battery (2200mAh)**, it provides stable forward speed (~0.8 m/s) suitable for both the Open and Obstacle Challenges.  
+- Encoder use: The integrated encoder allows for approximate lap counting and speed estimation, though not yet used for closed-loop speed control.
+
+**Advantages of LEGO NXT DC Motor 9842**  
+
+- Well-tested and reliable in educational robotics applications.  
+- Integrated encoder provides basic feedback for distance/lap counting.  
+- Compact design simplifies integration into the 3D-printed chassis.  
+- Operates safely within the 11.1 V range of the 3S LiPo battery.  
+- Adequate torque for a lightweight WRO Future Engineers vehicle.  
+
+**Disadvantages of LEGO NXT DC Motor 9842**  
+
+- Limited maximum speed compared to custom brushless DC motors.  
+- Lower efficiency due to internal gearbox losses.  
+- Encoder resolution is relatively coarse, limiting precision for advanced control.  
+- Mechanical noise and vibration are higher than modern DC or stepper alternatives.  
+- Availability is restricted, as the NXT system is discontinued and parts may only be sourced second-hand.  
+
+---
+
+**Steering Motor**  
+
+- Component: **MG995 Servo Motor**  
+- Placement: Mounted on the lower front section of the chassis, secured with 3D-printed brackets and heat-set inserts (PLA-based, not ABS).  
+- Mechanism: The servo actuates a **fully 3D-printed Ackermann steering system** consisting of knuckles, tie rods, and a bell-crank.  
+- Range: Calibrated to operate safely between **46° and 140°**, corresponding to full left and right lock.  
+- Protection: Mechanical stops are integrated into the design to prevent over-travel and reduce stress on the servo gears.  
+- Response: The servo provides sufficient torque and speed for sharp turns while maintaining stable control at competition speeds.
+
+---
+
+**System Integration**  
+
+- The Arduino Nano controls both motors: PWM for traction through the **DRV8871 motor driver**, and PWM signal for the MG995 steering servo.  
+- Both actuators are wired with strain relief and routed through dedicated cable channels in the chassis to avoid interference with moving parts.
+
+---
+
+#### Potential Improvements
+
+To further enhance the motor system, the following upgrades are considered for future iterations:
+1. Implementing **closed-loop speed control** using the LEGO NXT motor encoder for more precise lap timing and smoother acceleration.  
+2. Replacing the **MG995 servo** with a digital high-torque servo for faster and more accurate steering response.  
+3. Designing an **adjustable motor mount** that allows fine-tuning of axle alignment and easy replacement of the traction motor.  
+
+These improvements would improve **precision, durability, and control**, especially under variable competition conditions.
 
 
 ---

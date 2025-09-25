@@ -57,28 +57,6 @@
 
 #### Chassis
 
-### Mobility Management
-
-#### 🛠️ Chassis
-
-### Mobility Management
-
-#### 🛠️ Chassis
-Got it ✅. Here’s the corrected version in English, with the sentence about the **608ZZ bearings** removed:
-
----
-
-### Mobility Management
-
-#### 🛠️ Chassis
-
-### Mobility Management
-
-#### 🛠️ Chassis
-### Mobility Management
-
-#### 🛠️ Chassis
-
 The chassis is fully **3D-printed** and modeled in **SolidWorks**, then manufactured using a **Bambu Lab A1 printer**. It follows a **modular two-level architecture**, designed for easy assembly, maintenance, and compliance with **WRO Future Engineers** regulations (≤ 300 × 200 × 300 mm).
 
 * **Lower level:** Contains the **LEGO NXT DC motor (9842, with encoder)**, which is **directly coupled to the rear axle** (no belt system). This direct drive ensures efficient torque transfer and minimizes mechanical losses. The motor is secured on a **dedicated printed motor mount**, integrated into the lower deck for maximum rigidity and precise alignment with the axle. The lower level also houses the **3S LiPo Battery 2200mAh 11.1V** and three **Mini360 DC-DC converters**. The battery is mounted in a dedicated bay that allows **fast hot-swap**, minimizing downtime during testing or competition.

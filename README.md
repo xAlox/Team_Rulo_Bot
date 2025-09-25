@@ -106,6 +106,38 @@ In summary, the chassis combines **strength, modularity, and accessibility**: a 
 
 #### Sensors
 
+For both the **Open Challenge** and the **Obstacle Challenge**, the vehicle relies exclusively on the **innomaker USB UVC 2.0 camera** as its primary and only sensing device. The camera is mounted on the upper level of the chassis and connected directly to the Raspberry Pi 5. Computer vision algorithms (OpenCV with LAB/HSV masks) are used to detect black lines, colored pillars (red and green), and the playfield boundaries.
+
+This approach eliminates the need for ultrasonic sensors or IMUs, reducing system complexity and weight. However, it also introduces trade-offs that must be carefully considered.
+
+**Advantages (Pros):**
+- Simple architecture: only one sensing component to calibrate and maintain.  
+- Weight reduction: fewer components, lighter overall design.  
+- Cost efficiency: lower bill of materials compared to multi-sensor setups.  
+- Flexibility: a single USB UVC camera can handle lane detection, wall detection, obstacle recognition, and color classification.  
+- Compliance: fewer hardware points of failure, easier inspection during WRO competition checks.  
+
+**Disadvantages (Cons):**
+- Lighting sensitivity: performance depends heavily on ambient lighting; requires frequent mask calibration at each venue.  
+- Processing load: real-time vision requires significant compute resources, relying on the Raspberry Pi 5 to maintain adequate FPS.  
+- Failure risk: if the camera fails, the robot loses all sensing capability (no redundancy).  
+- Limited robustness: vision may be affected by reflections, shadows, or worn playfield surfaces.  
+
+**Summary:**  
+The innomaker USB UVC 2.0 camera provides a **minimalistic and efficient sensing solution** for WRO Future Engineers, balancing cost, simplicity, and functionality. Nevertheless, it demands **careful calibration and robust vision algorithms** to mitigate the lack of distance sensing and lighting variability.
+
+---
+
+#### Potential Improvements
+While the camera-only approach is functional, future iterations of the robot could be improved by:
+
+1. Integrating an **IMU (gyroscope + accelerometer)** to improve orientation awareness and stability in sharp turns.  
+2. Upgrading to a **global-shutter camera** to minimize motion blur at higher speeds.  
+3. Implementing **sensor fusion** between vision and secondary sensors (ultrasonic + IMU) to increase robustness against noise and reflections.  
+4. Introducing **redundancy**: a backup sensing modality would ensure the robot can still complete laps if the camera feed is compromised.  
+
+These improvements would make the sensing system more **robust, adaptable to different environments, and resilient** to unexpected failures during competition.
+
 #### Schematic
 
 ![Imagen de WhatsApp 2025-08-14 a las 13 37 32_29657814](https://github.com/user-attachments/assets/e6b29fac-5bbe-44b5-b904-1bcb2de3b229)

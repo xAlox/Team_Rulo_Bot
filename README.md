@@ -1,10 +1,10 @@
 # Team Rulo Bot – WRO Future Engineers 2025
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 - [Repository Contents](#repository-contents)
-- [Team](#team)
-- [Executive Summary](#Executive Summary)
+- [Team](#Team)
+- [Executive Summary](#Executive-Summary)
 - [Hardware](#hardware)
   - [Components (Bill of Materials)](#components-bill-of-materials)
   - [Mobility Management](#mobility-management)

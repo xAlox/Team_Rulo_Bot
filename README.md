@@ -4,6 +4,7 @@
 ## 📑 Table of Contents
 - [Repository Contents](#repository-contents)
 - [Team](#team)
+- [Executive Summary](#Executive Summary)
 - [Hardware](#hardware)
   - [Components (Bill of Materials)](#components-bill-of-materials)
   - [Mobility Management](#mobility-management)
@@ -64,6 +65,13 @@
 
 ---
 
+
+
+### Executive Summary
+
+Ackermann-steered autonomous car for WRO FE 2025. Fully 3D-printed chassis (SolidWorks, Bambu A1), LEGO NXT 9842 direct drive, MG995 steering, single-sensor vision (Innomaker UVC 2.0) on Raspberry Pi 5 with PD steering. Power: 3× Mini360 (Pi / DRV8871 logic / servo), Nano powered from Pi. Designed for robustness, fast serviceability, and strict rules compliance (≤300×200×300 mm).
+
+
 ### Mobility Management
 
 #### Chassis
@@ -94,7 +102,8 @@ The two-level design significantly increases torsional stiffness, preventing cha
 In summary, the chassis combines **strength, modularity, and accessibility**: a fully 3D-printed structure optimized for competition performance while remaining easy to maintain and upgrade.
 
  #### Potential Improvements
-
+ 
+ 
 
 
 ---

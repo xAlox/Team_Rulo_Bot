@@ -321,7 +321,8 @@ OPEN CHALLENGE - COUNTERCLOCKWISE - https://www.youtube.com/watch?v=F6bJ-BMMgI8
 
 ### Project Roadmap
 
-WRO Future Engineers 2025
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/416e7f67-6f73-4500-b4c9-ddf3adf59ac5" />
+
 
 **Start date:** July 23, 2025  
 **Competition date:** October 19, 2025  

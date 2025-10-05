@@ -318,7 +318,45 @@ OPEN CHALLENGE - COUNTERCLOCKWISE - https://www.youtube.com/watch?v=F6bJ-BMMgI8
 ---
 
 ## Project Management
-### Roadmap
+
+### Project Roadmap
+
+WRO Future Engineers 2025
+
+**Start date:** July 23, 2025  
+**Competition date:** October 19, 2025  
+**Robot completion deadline:** October 5, 2025  
+
+---
+
+#### Phase 1 — Project Kickoff (July 23 – August 5)
+Define rules, scoring, team roles, and overall strategy.  
+**Deliverable:** Finalized competition strategy and design concept.
+
+#### Phase 2 — Design Bootcamp (August 6 – 9)
+Complete mechanical and electronic design (SolidWorks + KiCad).  
+**Deliverable:** Full CAD model and circuit ready for fabrication.
+
+#### Phase 3 — Programming Bootcamp (August 11 – 12)
+Configure Raspberry Pi 5, Arduino, OpenCV, and GitHub workflow.  
+**Deliverable:** Base software environment and first prototype code.
+
+#### Phase 4 — Assembly & First Tests (August 13 – 23)
+Assemble printed and electronic components, perform initial testing.  
+**Deliverable:** Robot assembled and first GitHub commit (Aug 23).
+
+#### Phase 5 — Integration & Tuning (August 25 – 29)
+Integrate sensors, camera, and PD control; run Open/Obstacle trials.  
+**Deliverable:** Autonomous navigation demonstrated (Aug 30).
+
+#### Phase 6 — Optimization & Validation (September 1 – 27)
+Optimize performance, speed, and detection reliability.  
+**Deliverable:** Final performance metrics and second GitHub commit (Sept 19).
+
+#### Phase 7 — Final Review & Competition Prep (Sept 30 – Oct 3)
+Stress tests, documentation, and competition readiness check.  
+**Deliverable:** Final GitHub commit (Oct 4) and readiness for competition (Oct 19, Panama 🇵🇦).
+
 ### Milestones
 ### Risks & Mitigations
 

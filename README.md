@@ -54,14 +54,14 @@
 | Name            | Product                                                                 | Price | Quantity |
 |-----------------|-------------------------------------------------------------------------|-------|----------|
 | Camera          | [innomaker Cámara UVC USB 2.0]( https://www.amazon.com/dp/B0CNCSFQC1)   | $18   | 1        |
-| Battery         | [Batería Lipo OVONIC 3S 50C 5200mAh 11,1V ](https://a.co/d/hIsMyAB)     | $50   | 1        |
+| Battery         | [Batería Lipo OVONIC 3S 50C 5200mAh 11,1V ](https://a.co/d/hIsMyAB)     | $17   | 1        |
 | Traction Motor  | [Lego NXT Servo Motor](https://ebay.us/m/edWc1H)                        | $8    | 1        |
 | Motor Driver    | [DRV8871 Motor Driver](https://a.co/d/99h8can)                          | $23   | 1        |
 | Turning Motor   | [MG995 Servo Motor](https://a.co/d/fiWS9WQ)                             | $15   | 1        |
 | Raspberry Pi    | [RasTech Raspberry Pi 5 8GB](https://a.co/d/0iE3Rae)                    | $99   | 1        |
 | Voltage Converter | [Mini360 DC-DC Voltage Power Converter](https://a.co/d/gaePhae)       | $8    | 3        |
 
-**Total Car Hardware Cost:** **$205 USD**
+**Total Car Hardware Cost:** **$188 USD**
 
 ---
 

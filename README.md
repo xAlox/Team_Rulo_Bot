@@ -302,7 +302,7 @@ The goal was to confirm that the robot could move forward and backward smoothly 
 
 **AUTONOMOUS ROBOT TEST – Vision Test: Red and Green Color Detection**  
 [https://youtu.be/MnDNOvI_E2s](https://youtu.be/MnDNOvI_E2s)  
-During this test, we were calibrating the color detection system of the Innomaker UVC 2.0 camera.  
+During this test, we were calibrating the color detection system of the provisional camera.  
 We focused on adjusting the HSV and LAB masks in OpenCV to correctly identify red and green pillars, which are essential for obstacle decision-making during the Obstacle Challenge.
 
 **TEST – Forward and Backward**  

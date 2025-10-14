@@ -139,7 +139,7 @@ Designed for robustness, fast serviceability, and strict rules compliance (≤30
 | Steering Range | 94° (46°–140°) | ≥ 90° | ✅ Pass |
 | Camera FPS | 28 fps | ≥ 25 fps | ✅ Pass |
 | Power Stability | 5.02 V ± 0.05 V | 5.0 V ± 0.1 V | ✅ Pass |
-| Runtime (3S LiPo 2200 mAh) | 18 min | ≥ 15 min | ✅ Pass |
+| Runtime Batería Lipo OVONIC 3S 50C 5200 mAh 11.1 V) | 18 min | ≥ 15 min | ✅ Pass |
 
 ---
 

@@ -25,8 +25,7 @@
 
 ---
 
-### 📑 Table of Contents
-This README is organized into numbered sections for clarity and fast navigation:
+### 📑 table of contents of README
 
 * [2. Team](#sec-2)
 * [3. Executive Summary](#sec-3)

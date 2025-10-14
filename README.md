@@ -1,7 +1,25 @@
 # Team Rulo Bot – WRO Future Engineers 2025
 ---
 
-## Table of Contents
+## Repository content
+
+<kbd>3D_models</kbd> Includes the complete 3D design of the vehicle and rendered models for presentation.  
+
+<kbd>schemes</kbd> Contains electrical and electronic schematic diagrams (PNG) showing system interconnections.  
+
+<kbd>src</kbd> Source code for both the Raspberry Pi (Python) and Arduino (C++) programs, including PD steering, obstacle avoidance, and vision algorithms.  
+
+<kbd>tphotos</kbd> Team Rulo Bot photos — competition sessions, testing, and behind-the-scenes moments.  
+
+<kbd>tvideos</kbd> YouTube links or embedded demos showing the robot’s performance in each mission.  
+
+<kbd>robot_photos</kbd> Robot gallery including top, side, and bottom perspectives of the vehicle.  
+
+<kbd>readme</kbd> This Readme contain: 
+
+
+
+
 - [Repository Contents](#repository-contents)
 - [Team](#Team)
 - [Executive Summary](#Executive-Summary)
@@ -19,31 +37,19 @@
 
 ---
 
-## Repository Contents
-- `hardware/`
-- `software/`
-- `docs/`
-- `datasets/`
-- `tests/`
+## 👥 Team Rulo Bot — PUCMM SD
+
+| Emil Velasquez | Wilmer Reyes | Alfonso Duverge |
+|:---------------:|:-------------:|:----------------:|
+| <img src="https://github.com/user-attachments/assets/25f1e48c-b0bc-413d-9e2e-95132b73f158" width="300"> | <img src="https://github.com/user-attachments/assets/d8a99eaf-8ccd-467a-b0cf-655299f9185f" width="300"> | <img src="https://github.com/user-attachments/assets/7e40e95a-828c-4b00-8adc-9d53fa350c04" width="300"> |
 
 ---
+
+
 
 ### Team Rulo Bot: 
 
 ![Imagen de WhatsApp 2025-08-23 a las 19 16 47_8771e2f9](https://github.com/user-attachments/assets/29deb411-65f3-4a44-be79-c59dec93f99c)
-
-- [Alfonso Duverge Urbaez]
-  
-![Imagen de WhatsApp 2025-09-18 a las 18 30 46_69a62026](https://github.com/user-attachments/assets/7e40e95a-828c-4b00-8adc-9d53fa350c04)
-
-- [Wilmer De Jesus Reyes Castillo]
-  
-![Imagen de WhatsApp 2025-09-18 a las 18 30 46_d27cedc8](https://github.com/user-attachments/assets/d8a99eaf-8ccd-467a-b0cf-655299f9185f)
-  
-- [Emil Gustavo Velasquez Canela]
-  
-![Imagen de WhatsApp 2025-09-18 a las 18 30 46_6bc5796d](https://github.com/user-attachments/assets/25f1e48c-b0bc-413d-9e2e-95132b73f158)
-
 
 ---
 
@@ -51,17 +57,18 @@
 
 ### Components (Bill of Materials)
 
-| Name            | Product                                                                 | Price | Quantity |
-|-----------------|-------------------------------------------------------------------------|-------|----------|
-| Camera          | [innomaker Cámara UVC USB 2.0]( https://www.amazon.com/dp/B0CNCSFQC1)   | $18   | 1        |
-| Battery         | [Batería Lipo OVONIC 3S 50C 5200mAh 11,1V ](https://a.co/d/hIsMyAB)     | $17   | 1        |
-| Traction Motor  | [Lego NXT Servo Motor](https://ebay.us/m/edWc1H)                        | $8    | 1        |
-| Motor Driver    | [DRV8871 Motor Driver](https://a.co/d/99h8can)                          | $23   | 1        |
-| Turning Motor   | [MG995 Servo Motor](https://a.co/d/fiWS9WQ)                             | $15   | 1        |
-| Raspberry Pi    | [RasTech Raspberry Pi 5 8GB](https://a.co/d/0iE3Rae)                    | $99   | 1        |
-| Voltage Converter | [Mini360 DC-DC Voltage Power Converter](https://a.co/d/gaePhae)       | $8    | 3        |
+| Component | Product | Image | Price | Quantity |
+|------------|----------|:------:|:------:|:----------:|
+| **Camera** | [innomaker Cámara UVC USB 2.0](https://www.amazon.com/dp/B0CNCSFQC1) | <img src="https://github.com/user-attachments/assets/6047e462-ebc7-4a6b-990e-7164869f2634" width="120"> | $18 | 1 |
+| **Battery** | [Batería Lipo OVONIC 3S 50C 5200 mAh 11.1 V](https://a.co/d/hIsMyAB) | <img src="https://github.com/user-attachments/assets/a227fa6f-327b-4696-b1b1-d673a9621d41" width="120"> | $17 | 1 |
+| **Traction Motor** | [Lego NXT Servo Motor](https://ebay.us/m/edWc1H) | <img src="https://github.com/user-attachments/assets/d69dd126-2536-4d84-bb0b-b062ca8b7bd2" width="120"> | $8 | 1 |
+| **Motor Driver** | [DRV8871 Motor Driver](https://a.co/d/99h8can) | <img src="https://github.com/user-attachments/assets/bb43382e-0153-4fa2-90ef-53b1c02371e3" width="120"> | $23 | 1 |
+| **Turning Motor** | [MG995 Servo Motor](https://a.co/d/fiWS9WQ) | <img src="https://github.com/user-attachments/assets/723466f3-fc8f-4c05-aa03-395575365e30" width="120"> | $15 | 1 |
+| **Raspberry Pi 5 8 GB** | [RasTech Raspberry Pi 5 8 GB](https://a.co/d/0iE3Rae) | <img src="https://github.com/user-attachments/assets/6708444d-f624-42ef-81a7-70f443dfb033" width="120"> | $99 | 1 |
+| **Voltage Converter** | [Mini360 DC-DC Converter](https://a.co/d/gaePhae) | <img src="https://github.com/user-attachments/assets/47b7fa63-0fb7-46a8-a4be-35bbdf58f11c" width="120"> | $8 | 3 |
 
 **Total Car Hardware Cost:** **$188 USD**
+
 
 ---
 
@@ -70,6 +77,11 @@
 ### Executive Summary
 
 Ackermann-steered autonomous car for WRO  2025. Fully 3D-printed chassis (SolidWorks, Bambu A1), LEGO NXT 9842 direct drive, MG995 steering, single-sensor vision (Innomaker UVC 2.0) on Raspberry Pi 5 with PD steering. Power: 3× Mini360 (Pi / DRV8871 logic / servo), Nano powered from Pi. Designed for robustness, fast serviceability, and strict rules compliance (≤300×200×300 mm).
+
+
+| Front | Side | Top |
+|:----:|:----:|:----:|
+| <img src="media/front.jpg" width="250"> | <img src="media/side.jpg" width="250"> | <img src="media/top.jpg" width="250"> |
 
 
 ### Mobility Management

@@ -18,9 +18,9 @@
 | **`schemes`**      | Electrical and electronic schematic diagrams (PNG).                                                             |
 | **`technical_reports`**   | engineering documentation(Mechanical,Electronics & Power Report,Software Architecture,Development History & Modifications)                                                        |
 | **`src`**          | Source code for Raspberry Pi (Python) and Arduino (C++): PD steering, obstacle avoidance and vision algorithms. |
-| **`tphotos`**      | Photos of Team Rulo Bot during competition sessions, testing and behind-the-scenes moments.                     |
-| **`tvideos`**      | YouTube links or embedded demos showing the robot’s performance in each mission.                                |
-| **`robot_photos`** | Gallery of the robot including top, side and front perspectives of the vehicle.                                 |
+| **`t-photos`**      | Photos of Team Rulo Bot during competition sessions, testing and behind-the-scenes moments.                     |
+| **`t-videos`**      | YouTube links or embedded demos showing the robot’s performance in each mission.                                |
+| **`robot-photos`** | Gallery of the robot including top, side and front perspectives of the vehicle.                                 |
 | **`readme`**       | Team,Executive Summary,BOM,Gallery,Testing y validation,project Management                                      |
 
 ---

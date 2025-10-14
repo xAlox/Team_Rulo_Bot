@@ -1,0 +1,35 @@
+Performance Videos — Team Rulo Bot Testing Sessions
+AUTONOMOUS ROBOT TEST – Forward and Reverse Motion
+
+https://youtube.com/shorts/DLdXPhjLxYY
+
+In this test, we were verifying the behavior of the traction system using the LEGO NXT 9842 motor and the DRV8871 driver.
+The goal was to confirm that the robot could move forward and backward smoothly under PWM control, maintaining stable direction changes without losing alignment or causing mechanical vibration.
+
+AUTONOMOUS ROBOT TEST – Vision Test: Red and Green Color Detection
+
+https://youtu.be/MnDNOvI_E2s
+
+During this test, we were calibrating the color detection system of the provisional camera.
+We focused on adjusting the HSV and LAB masks in OpenCV to correctly identify red and green pillars, which are essential for obstacle decision-making during the Obstacle Challenge.
+
+TEST – Forward and Backward
+
+https://www.youtube.com/shorts/6pMi8gZCbPo
+
+In this experiment, we were testing the encoder’s response and traction symmetry by moving the robot back and forth multiple times.
+The purpose was to verify that both acceleration and braking were consistent, and that the robot maintained linear stability when changing direction.
+
+OPEN CHALLENGE – Clockwise Run
+
+https://www.youtube.com/watch?v=ao2uUjXZPo4
+
+Here we were performing one of the first complete runs of the Open Challenge in the clockwise direction.
+We tested PD steering tuning, lane centering using the front ROI, and overall stability during continuous lap navigation around the playfield.
+
+OPEN CHALLENGE – Counterclockwise Run
+
+https://www.youtube.com/watch?v=F6bJ-BMMgI8
+
+This session was focused on validating the same Open Challenge run but in the counterclockwise direction.
+We were confirming that the PD control, ROI detection, and camera calibration worked equally well in both orientations, ensuring symmetrical performance and algorithm consistency.

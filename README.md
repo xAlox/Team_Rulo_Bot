@@ -2,6 +2,17 @@
 
 # 1. Team Rulo Bot – WRO Future Engineers 2025
 
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/726679e4-21a8-4da4-be9c-fa01bc62a6e3
+
+
+
+
+![Imagen de WhatsApp 2025-10-14 a las 14 31 22_ee88e1e7](https://github.com/user-attachments/assets/726679e4-21a8-4da4-be9c-fa01bc62a6e3)
+
+
+
 ---
 
 ## 1.1 Overview & Repository Content

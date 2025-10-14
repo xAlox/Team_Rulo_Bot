@@ -168,51 +168,79 @@ Designed for robustness, fast serviceability, and strict rules compliance (≤30
 
 ### 7.2 Extended Work Plan — Cronograma RuloBot (Sept 22 → Oct 19 2025)
 
-#### **🔹 Sept 22 – 23 → Mechanical / Electrical / Programming Setup**
-- Adjust camera mount; replace wheel supports (PLA → ABS).  
-- Improve cable isolation and solder joints; test servo feedback.  
-- Finalize Open Challenge code and begin Obstacle Challenge logic.  
-- Upload updated photos and documentation to GitHub.  
+Sept 22 – 23 → Mechanical / Electrical / Programming Setup
 
-#### **🔹 Sept 23 – 26 → Optimization & Documentation**
-- Refine mechanical parts with tolerance corrections.  
-- Optimize Open Challenge code and calibrate obstacle colors.  
-- Prepare initial Obstacle Challenge commit and unified logic.  
-- Complete hardware table and mechanical documentation.  
+Adjust camera mount; replace wheel supports (PLA → ABS).
 
-#### **🔹 Sept 27 → Testing Session #1 (Fogueo #1)**
-- Full-track trial run (3 laps Open + Obstacle).  
-- Collect timing and steering-error data.  
+Improve cable isolation and solder joints; test servo feedback.
 
-#### **🔹 Sept 28 → Post-Test Documentation**
-- Edit and upload videos of Fogueo #1.  
-- Update code commits with feedback results.  
+Finalize Open Challenge code and begin Obstacle Challenge logic.
 
-#### **🔹 Sept 29 – Oct 3 → Reliability Preparation**
-- Print spare parts; purchase backup servo and connectors.  
-- Run timed tests at multiple speeds; document mechanical stability.  
-- Update GitHub with full code explanation and wiring guide.  
+Upload updated photos and documentation to GitHub.
 
-#### **🔹 Oct 4 → Testing Session #2 (Fogueo #2)**
-- Validate improvements vs Fogueo #1.  
-- Measure consistency ≥ 70 % success rate per lap.  
+🔹 Sept 23 – 26 → Optimization & Documentation
 
-#### **🔹 Oct 5 – 13 → Final Integration & Deadline**
-- Validate ABS durability and motor endurance on full track.  
-- Test battery autonomy and servo calibration under stress.  
-- Validate autonomous parking (encoder + vision).  
-- Perform final GitHub commits and upload photos/videos.  
+Refine mechanical parts with tolerance corrections.
 
-#### **🔹 Oct 14 – 18 → Pre-Competition Week**
-- Conduct final rehearsals on official track replica.  
-- Perform final color calibration (H S V / L A B).  
-- Check contingency kit (spare servo, motor, battery, cables).  
-- Prepare travel materials, laptop, chargers, and tool kit.  
+Optimize Open Challenge code and calibrate obstacle colors.
 
-#### **🔹 Oct 19 → Competition Day – Singapore 🇸🇬**
-- 60 min official practice for last-minute calibration.  
-- Final runs: Open Challenge + Obstacle Challenge.  
-- Submit printed documentation and make GitHub public.
+Prepare initial Obstacle Challenge commit and unified logic.
+
+Complete hardware table and mechanical documentation.
+
+🔹 Sept 27 → Testing Session #1 (Fogueo #1)
+
+Full-track trial run (3 laps Open + Obstacle).
+
+Collect timing and steering-error data.
+
+🔹 Sept 28 → Post-Test Documentation
+
+Edit and upload videos of Fogueo #1.
+
+Update code commits with feedback results.
+
+🔹 Sept 29 – Oct 3 → Reliability Preparation
+
+Print spare parts; purchase backup servo and connectors.
+
+Run timed tests at multiple speeds; document mechanical stability.
+
+Update GitHub with full code explanation and wiring guide.
+
+🔹 Oct 4 → Testing Session #2 (Fogueo #2)
+
+Validate improvements vs Fogueo #1.
+
+Measure consistency ≥ 70 % success rate per lap.
+
+🔹 Oct 5 – 13 → Final Integration & Deadline
+
+Validate ABS durability and motor endurance on full track.
+
+Test battery autonomy and servo calibration under stress.
+
+Validate autonomous parking (encoder + vision).
+
+Perform final GitHub commits and upload photos/videos.
+
+🔹 Oct 14 – 18 → Pre-Competition Week
+
+Conduct final rehearsals on official track replica.
+
+Perform final color calibration (HSV / LAB).
+
+Check contingency kit (spare servo, motor, battery, cables).
+
+Prepare travel materials, laptop, chargers, and tool kit.
+
+🔹 Oct 18 – Nov 24 → Competition Day – Singapore 🇸🇬
+
+Practice and final testing on official track.
+
+Runs: Open Challenge + Obstacle Challenge.
+
+Submit printed documentation and publicar repositorio.
 
 ---
 

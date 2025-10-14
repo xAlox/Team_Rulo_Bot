@@ -166,7 +166,7 @@ Designed for robustness, fast serviceability, and strict rules compliance (≤30
 
 ---
 
-### 7.2 Extended Work Plan — Cronograma RuloBot (Sept 22 → Oct 19 2025)
+### 7.2 Work Plan —  RuloBot (Sept 22 → Nov 24 2025)
 
 Sept 22 – 23 → Mechanical / Electrical / Programming Setup
 

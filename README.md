@@ -102,7 +102,17 @@ Designed for robustness, fast serviceability, and strict rules compliance (≤30
 
 ## 6. Testing & Validation
 
-### 6.1 Test Plan
+### 6.1 Performance Videos 
+
+| Video                                                                              | Description                                                                                                |
+| :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
+| [🔗 Traction test](https://youtube.com/shorts/DLdXPhjLxYY)                         | Verifies the response of the NXT motor and DRV8871 driver in forward and reverse motion under PWM control. |
+| [🔗 Colour detection](https://youtu.be/MnDNOvI_E2s)                                | Calibrates HSV and LAB masks to correctly identify red and green pillars.                                  |
+| [🔗 Back-and-forth test](https://www.youtube.com/shorts/6pMi8gZCbPo)               | Evaluates encoder response and traction symmetry by moving forward and backward repeatedly.                |
+| [🔗 Open Challenge clockwise](https://www.youtube.com/watch?v=ao2uUjXZPo4)         | First complete lap clockwise, tuning PD steering and lane centering.                                       |
+| [🔗 Open Challenge counter-clockwise](https://www.youtube.com/watch?v=F6bJ-BMMgI8) | Counter-clockwise run, verifying control symmetry and detection consistency.                               |
+
+### 6.2 Test Plan
 
 | Nº | Test Name | Objective | Method / Description | Expected Result |
 |:--:|:-----------|:-----------|:---------------------|:----------------|
@@ -115,7 +125,7 @@ Designed for robustness, fast serviceability, and strict rules compliance (≤30
 
 ---
 
-### 6.2 Metrics
+### 6.3 Metrics
 
 | Metric | Measured Value | Target | Result |
 |:--------|:---------------|:--------|:--------|
@@ -127,7 +137,7 @@ Designed for robustness, fast serviceability, and strict rules compliance (≤30
 
 ---
 
-### 6.3 Results
+### 6.4 Results
 
 > The Rulo Bot successfully completed both the Open and Obstacle challenges.  
 > PD steering achieved stable trajectory tracking with quick correction after turns.  

@@ -1,8 +1,24 @@
-<a id="top"></a>
 
-# 1. Team Rulo Bot – WRO Future Engineers 2025
+
+<h1 align="center">🤖 Team Rulo Bot — WRO Future Engineers 2025</h1>
+
+<p align="center">
+  Representing <b>PUCMM, Dominican Republic</b> at the <b>World Robot Olympiad 2025 – Future Engineers</b> challenge.<br>
+</p>
+
 
 ![Imagen de WhatsApp 2025-10-14 a las 14 31 22\_ee88e1e7](https://github.com/user-attachments/assets/726679e4-21a8-4da4-be9c-fa01bc62a6e3)
+<a id="top"></a>
+
+<p align="center">
+  <a href="https://www.youtube.com/@TeamRuloBot" target="_blank">
+    <img src="https://img.shields.io/badge/YouTube-%23FF0000.svg?&style=for-the-badge&logo=youtube&logoColor=white" alt="Team Rulo Bot YouTube"/>
+  </a>
+  &nbsp;
+  <a href="https://www.instagram.com/pucmm/?hl=es" target="_blank">
+    <img src="https://img.shields.io/badge/Instagram-%23E4405F.svg?&style=for-the-badge&logo=instagram&logoColor=white" alt="PUCMM Instagram"/>
+  </a>
+</p>
 
 ---
 

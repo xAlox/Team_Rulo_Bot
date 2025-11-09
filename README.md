@@ -31,8 +31,12 @@
 * [7. Project Management](#sec-7)
 * [8. Iteration Process, Testing, and Quantitative Results](#sec-8)
 * [9. Risk Analysis, Mitigation Measures, and Lessons Learned](#sec-9)
+* [10. Maintenance Plan, Quick Service, and Operational Robustness](#sec-10)
+* [11. Efficiency, Material Use, and Sustainability Indicators](#sec-11)
+* [12. Pre-Competition Validation Plan and Milestone Schedule](#sec-12)
+* [13. Lessons Learned](#sec-13)
+* [14. Conclusion](#sec-14)
 
----
 
 <a id="sec-2"></a>
 
@@ -448,3 +452,161 @@ A preventive and corrective maintenance plan ensures long-term reliability durin
 | *Vision System (Camera)*     | Before each session      | Clean lens and verify LAB calibration.                | —                          | Logged in GitHub (color test).  |
 
 ---
+
+<a id="sec-11"></a>
+
+## 11. Efficiency, Material Use, and Sustainability Indicators
+
+The design of Team Rulo Bot followed a philosophy of efficient, modular, and sustainable engineering, aiming to maximize performance while minimizing resource consumption.
+Through extensive 3D printing, structural optimization, and partial component reuse, the vehicle achieved a high weight-to-power ratio, low energy consumption, and a significantly reduced environmental impact.
+
+### 11.1 Efficiency and Sustainability Indicators
+|           **Indicator**          | **Technical Description**                                                                              |            **Estimated Value**           |
+| :------------------------------: | :----------------------------------------------------------------------------------------------------- | :--------------------------------------: |
+|    **3D-Printed Parts Ratio**    | Structural frame, anti-Ackermann steering system, and sensor mounts made with PLA and PETG.            |     **≈ 70% printed / 30% purchased**    |
+|       **Weight Reduction**       | Optimized topology and lightweight materials replacing metallic or acrylic parts.                      |            **≈ 180 g (≈ 15%)**           |
+|       **Reused Components**      | Only the **LEGO NXT motor** was reused from earlier prototypes; all other components are new.          |         **≈ 15% of total system**        |
+|       **Energy Efficiency**      | PD-controlled system powered by a LiPo 3S battery with Mini360 DC-DC converters, minimizing heat loss. | **≈ 25 min autonomy / <10 W power draw** |
+| **Reduced Environmental Impact** | Local FDM manufacturing with no international shipping or metal machining.                             |         **≈ −40% CO₂ footprint**         |
+|        **Modular Design**        | All parts assembled with M3 screws and Dupont connectors → fully detachable and serviceable.           |     **100% modular and sustainable**     |
+
+
+
+
+### 11.2 Sustainability Approach
+
+From the very beginning, the team adopted a responsible engineering mindset, balancing performance and sustainability.
+Every component was designed to be lightweight, recyclable, and locally manufactured, reducing both material waste and carbon emissions.
+This experience taught us that sustainability doesn’t limit engineering—it empowers it, proving that true efficiency emerges when creativity, technology, and environmental awareness work together.
+
+### 11.3 Material Comparison Chart
+
+<div align="center"> <img src="!image-1.png" width="500"> </div>
+
+
+
+---
+
+<a id="sec-12"></a>
+
+## 12. Pre-Competition Validation Plan and Milestone Schedule
+
+The development of *Team Rulo Bot* was organized into **five main engineering phases**: mechanical, electronics, software, integration, and optimization.
+Each phase was validated through functional testing and iterative adjustments, prioritizing stability, precision, and robustness before the official competition.
+
+---
+
+### 12.1 Milestone Schedule
+
+
+|      **Phase**      | **Main Objectives**                                                                                                 | **Expected Deliverables**                                               |          **Status**          |
+| :-----------------: | :------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------------------- | :--------------------------: |
+|  **1. Mechanical**  | 3D modeling of the chassis, anti-Ackermann steering redesign, and weight reduction.                                 | Printed chassis, wheel supports, functional front steering module.      |           Completed         |
+|  **2. Electronics** | Solder all connections, assemble the power system (LiPo + Mini360), and integrate controllers (DRV8871, Pi, servo). | Neat wiring, solid solder joints, Dupont connectors, secured terminals. |           Completed         |
+|   **3. Software**   | Implementation of LAB-based vision, PD steering control, and Pi–Arduino serial communication.                       | Stable navigation and obstacle-avoidance routines.                      |  85 % (ongoing refinement) |
+|  **4. Integration** | Full assembly, servo calibration, latency evaluation, and PD fine-tuning.                                           | Stable autonomous navigation on the test track.                         |        In refinement       |
+| **5. Optimization** | Extended testing, electrical-consumption validation, and final track adjustments.                                   | Consistent and reliable performance under real conditions.              |    Ready for competition   |
+
+---
+
+### 12.2 Validation and Adjustments
+
+|  **Validation Aspect**  |         **Target / Expected**        |        **Result / Adjustment**        | **Lesson Learned**                                               |
+| :---------------------: | :----------------------------------: | :-----------------------------------: | :--------------------------------------------------------------- |
+|    **Servo Response**   |               < 120 ms               |        Achieved 110 ms average        | Dynamic PD tuning improves directional stability.                |
+|  **Voltage Stability**  |         < 5 % drop under load        |              3.8 % stable             | Clean solder joints and Mini360 converters reduced fluctuations. |
+| **Camera Vision (LAB)** | Detect pillars under varied lighting |          Stable LAB detection         | LAB segmentation provided reliable results without HSV.          |
+|  **Obstacle Avoidance** |      Avoid collisions at < 10 cm     | Functional after offset recalibration | Lateral sensor placement improved safety margin.                 |
+
+---
+
+### 12.3 Schedule Deviations and Lessons
+
+* The **mechanical phase** extended by **+1 week** due to the steering redesign.
+* **Software and integration** overlapped to recover time.
+* **Final testing** was expanded to evaluate electrical stability and PD accuracy.
+
+> Overlapping phases accelerated development without compromising quality. Future projects will maintain this iterative, concurrent validation model.
+
+---
+
+
+
+### 12.4 Overall Project Progress
+
+<div align="center">
+  <img src="image.png" width="500">
+</div>  
+
+
+
+---
+
+<a id="sec-13"></a>
+
+# 13.  Lessons Learned
+
+### 13.1 Educational, Institutional, and Community Impact
+
+This project was not just a competition, but a story of growth and motivation. Team Rulo Bot became an inspiration within PUCMM, sparking interest among new students in robotics and applied engineering. Our journey proved that with dedication, curiosity, and discipline, it’s possible to achieve remarkable results in a very short time.
+We showed that engineering is not only about theory or simulations—it’s about passion, design, mistakes, solutions, and constant learning. Every iteration taught us something new about teamwork, leadership, technical documentation, and resilience.
+
+
+
+### 13.2 Team Motivation, Engineering Experience, and Teamwork
+
+We were united by one goal: to proudly represent the Dominican Republic and our university at WRO 2025. Along the way, we learned to communicate better, to trust each other, and to merge our technical strengths toward a common purpose.
+Every late-night test, every fixed error, and every small success became a memory of what it truly means to be engineers—to learn fast, think differently, and never give up.
+(16.3 Agradecimientos, visión de futuro)
+
+### 13.3  Acknowledgments and Future Vision
+
+We are deeply grateful to Pontificia Universidad Católica Madre y Maestra (PUCMM) for being the place where this dream was born, and to our coach, for his time, dedication, effort, and—most importantly—for the trust placed in us from the very beginning.
+Thank you for showing us that engineering also has a heart.
+From now on, we aim to keep growing, innovating, and sharing what we’ve learned with new generations, so that this legacy of passion and knowledge continues far beyond the lab and the competition.
+
+
+---
+
+<a id="sec-14"></a>
+
+
+
+## 14. Conclusion
+
+The *Team Rulo Bot* project represents a complete engineering journey — from concept design to the implementation of a functional autonomous system, built with passion, discipline, and teamwork.
+Throughout the process, the team integrated **mechanical precision**, **electronic reliability**, and **intelligent control through computer vision**, achieving a robust, efficient, and competition-ready platform for **WRO 2025**.
+
+---
+
+### 14.1 Key Achievements and Learnings
+
+**Mechanical Innovation:** Development of a fully 3D-printed anti-Ackermann steering system, structurally optimized for weight reduction and improved stability.
+**Electronic Integration:** Clean, soldered, and modular wiring system ensuring safe and reliable performance.
+**Vision and Control:** LAB-based color detection combined with a PD steering algorithm enabling smooth and precise autonomous navigation.
+**Teamwork and Iteration:** Effective communication across areas allowed quick problem-solving and strengthened the value of collaborative design.
+**Sustainability:** Adoption of a modular design philosophy, partial component reuse, and local fabrication to reduce cost and environmental impact.
+
+> Every mistake became an experiment, and every success a lesson on what engineering truly means: **to persist, to learn, and to create.**
+
+---
+
+### 14.2 Vision for Future Seasons
+
+Looking ahead, *Team Rulo Bot* will continue evolving toward a more intelligent, precise, and adaptive system.
+Future objectives include:
+
+Implementing **AI-based visual recognition** to classify dynamic objects and patterns.
+Developing a **self-tuning PD/PID control system** for adaptive performance.
+Integrating **LiDAR technology** for advanced obstacle detection and 3D mapping.
+Expanding open documentation and sharing knowledge with other WRO teams worldwide.
+
+The experience gained during this season lays the foundation for a more advanced, research-oriented phase in upcoming competitions — one where innovation, precision, and teamwork continue to define *Team Rulo Bot*.
+
+---
+
+
+[↑ Back to top](#top)
+
+---
+

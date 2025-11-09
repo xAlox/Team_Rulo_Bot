@@ -481,8 +481,9 @@ This experience taught us that sustainability doesn’t limit engineering—it e
 
 ### 11.3 Material Comparison Chart
 
-<div align="center"> <img src="!image-1.png" width="500"> </div>
-
+<div align="center">
+<img width="800" height="1014" alt="image" src="https://github.com/user-attachments/assets/97994ddb-2eaf-4c28-8650-c6a3f4d0ce76" />
+</div>  
 
 
 ---
@@ -535,7 +536,7 @@ Each phase was validated through functional testing and iterative adjustments, p
 ### 12.4 Overall Project Progress
 
 <div align="center">
-  <img src="image.png" width="500">
+  <img src="https://github.com/user-attachments/assets/06faf812-fb68-4b42-bdfb-6e577978e3b0"  width="800">
 </div>  
 
 

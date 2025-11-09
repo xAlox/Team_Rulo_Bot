@@ -1,6 +1,6 @@
 
 
-<h1 align="center">🤖 Team Rulo Bot — WRO Future Engineers 2025</h1>
+<h1 align="center"> Team Rulo Bot — WRO Future Engineers 2025</h1>
 
 <p align="center">
   Representing <b>PUCMM, Dominican Republic</b> at the <b>World Robot Olympiad 2025 – Future Engineers</b> challenge.<br>

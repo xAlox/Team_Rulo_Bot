@@ -125,8 +125,15 @@ Fully in-house engineering integration across software, electronics, and mechani
 
 ### Front, Left, and Right Views
 
+|                                                **Front**                                                |                                              **Left Side**                                              |            **Right Side**           |
+| :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :---------------------------------: |
+| <img src="https://github.com/user-attachments/assets/25f3d40a-215f-4ea2-bea8-40bcff1fbbed" width="250"> | <img src="https://github.com/user-attachments/assets/865b8981-3acf-4259-b72a-254d87498ab6" width="250"> | <img src="https://github.com/user-attachments/assets/44eea884-2363-485f-8fa8-ca5be2e7ce48" width="250"> |
 
 
+
+|                                               **Top View**                                              |            **Rear View**            |           **Bottom View**           |
+| :-----------------------------------------------------------------------------------------------------: | :---------------------------------: | :---------------------------------: |
+| <img src="https://github.com/user-attachments/assets/d08c9ad8-2ab7-4a6a-b362-f7af385b26de" width="250"> | <img src="https://github.com/user-attachments/assets/add95bd7-b23f-4b9c-9723-8ff20b3b9d9a " width="250"> | <img src="image-6.png" width="250"> |
 
 
 

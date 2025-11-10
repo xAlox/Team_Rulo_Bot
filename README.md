@@ -73,7 +73,7 @@ In the mechanical block, each member handled a specific part of the design: one 
 
 In the electrical block, we followed the same approach: task distribution for schematic design, wiring, sensor integration, power management, and testing.
 
-In the software block, one focused on computer vision (lane and obstacle detection), another on PD control and serial communication with the Arduino, and the third on parking logic and ultrasonic sensing.
+In the software block, one focused on computer vision (lane and obstacle detection), another on PD control and serial communication with the Arduino, and the third on parking logic.
 
 For the GitHub repository, we maintained the same collaborative strategy: each member documented and uploaded their own progress, ensuring consistent commits, code reviews, and cross-validation to maintain a coherent and well-structured repository.
 
@@ -139,25 +139,42 @@ Fully in-house engineering integration across software, electronics, and mechani
 
 <a id="sec-5"></a>
 
-## 5. Gallery
-
-### 5.1 Robot Views 
-
-### Front, Left, and Right Views
-
-|                                                **Front**                                                |                                              **Left Side**                                              |            **Right Side**           |
-| :-----------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------: | :---------------------------------: |
-| <img src="https://github.com/user-attachments/assets/25f3d40a-215f-4ea2-bea8-40bcff1fbbed" width="250"> | <img src="https://github.com/user-attachments/assets/865b8981-3acf-4259-b72a-254d87498ab6" width="250"> | <img src="https://github.com/user-attachments/assets/44eea884-2363-485f-8fa8-ca5be2e7ce48" width="250"> |
+## 5. ## Full Robot Views (All Sides)
 
 
+<div align="center">
 
-|                                               **Top View**                                              |            **Rear View**            |           **Bottom View**           |
-| :-----------------------------------------------------------------------------------------------------: | :---------------------------------: | :---------------------------------: |
-| <img src="https://github.com/user-attachments/assets/d08c9ad8-2ab7-4a6a-b362-f7af385b26de" width="250"> | <img src="https://github.com/user-attachments/assets/add95bd7-b23f-4b9c-9723-8ff20b3b9d9a " width="250"> | <img src="image-6.png" width="250"> |
+<h2> Team Rulo Bot — Visual Overview</h2>
+
+<!-- ===== SINGLE BLOCK: ORTHOGONAL + ISOMETRIC ===== -->
+<table style="border:none; text-align:center;">
+  <tr>
+    <th style="padding:10px;">Front View</th>
+    <th style="padding:10px;">Left Side View</th>
+    <th style="padding:10px;">Right Side View</th>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/61071c7a-727d-4762-af10-74bb7ca4014b" width="280" style="border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"></td>
+    <td><img src="https://github.com/user-attachments/assets/664d6bdf-172c-4b84-b51d-19927c0e750e" width="280" style="border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"></td>
+    <td><img src="https://github.com/user-attachments/assets/0f01f60b-f7aa-409b-978f-3d0ffe594949" width="280" style="border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"></td>
+  </tr>
+  <tr>
+    <th style="padding:10px;">Rear View</th>
+    <th style="padding:10px;">Top View</th>
+    <th style="padding:10px;">Isometric View</th>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/4fdb477e-fc18-4682-9e51-990597378675" width="280" style="border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"></td>
+    <td><img src="https://github.com/user-attachments/assets/98dc28e0-f4df-45d8-8bd4-ce0cf8b5f231" width="280" style="border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"></td>
+    <td><img src="https://github.com/user-attachments/assets/f7aed94d-09d3-44d6-8114-5d442e632160" width="280" style="border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"></td>
+  </tr>
+</table>
+
+<p align="center"><i>Comprehensive visual overview of Team Rulo Bot.</i></p>
+
+</div>
 
 
-
-[↑ Back to top](#top)
 
 ---
 
@@ -167,7 +184,7 @@ Fully in-house engineering integration across software, electronics, and mechani
 
 ### 6.1 Performance Videos
 
-<table> <tr> <td align="center"> <a href="https://youtube.com/shorts/DLdXPhjLxYY" target="_blank"> <img src="https://img.youtube.com/vi/DLdXPhjLxYY/0.jpg" width="260"><br> <b>Traction Test</b> </a> <p>Verifies NXT motor and DRV8871 driver response in forward/reverse under PWM control.</p> </td> <td align="center"> <a href="https://youtu.be/MnDNOvI_E2s" target="_blank"> <img src="https://img.youtube.com/vi/MnDNOvI_E2s/0.jpg" width="260"><br> <b>Colour Detection</b> </a> <p>Calibrates HSV and LAB masks for accurate red and green pillar recognition.</p> </td> <td align="center"> <a href="https://www.youtube.com/shorts/6pMi8gZCbPo" target="_blank"> <img src="https://img.youtube.com/vi/6pMi8gZCbPo/0.jpg" width="260"><br> <b>Back-and-Forth Test</b> </a> <p>Evaluates encoder feedback and traction symmetry during repeated motion cycles.</p> </td> </tr> <tr> <td align="center"> <a href="https://www.youtube.com/watch?v=ao2uUjXZPo4" target="_blank"> <img src="https://img.youtube.com/vi/ao2uUjXZPo4/0.jpg" width="260"><br> <b>Open Challenge – Clockwise</b> </a> <p>Performs a full clockwise lap with PD steering and lane-centering tuning.</p> </td> <td align="center"> <a href="https://www.youtube.com/watch?v=F6bJ-BMMgI8" target="_blank"> <img src="https://img.youtube.com/vi/F6bJ-BMMgI8/0.jpg" width="260"><br> <b>Open Challenge – Counter-Clockwise</b> </a> <p>Validates control symmetry and color detection in reverse direction runs.</p> </td> <td align="center"> <a href="https://www.youtube.com/watch?v=qPYCwgduaH8" target="_blank"> <img src="https://img.youtube.com/vi/qPYCwgduaH8/0.jpg" width="260"><br> <b>Obstacle Test V1</b> </a> <p>Tests autonomous obstacle detection and avoidance using PD + ultrasonic sensors.</p> </td> </tr> </table>                                         
+<table> <tr> <td align="center"> <a href="https://youtube.com/shorts/DLdXPhjLxYY" target="_blank"> <img src="https://img.youtube.com/vi/DLdXPhjLxYY/0.jpg" width="260"><br> <b>Traction Test</b> </a> <p>Verifies NXT motor and DRV8871 driver response in forward/reverse under PWM control.</p> </td> <td align="center"> <a href="https://youtu.be/MnDNOvI_E2s" target="_blank"> <img src="https://img.youtube.com/vi/MnDNOvI_E2s/0.jpg" width="260"><br> <b>Colour Detection</b> </a> <p>Calibrates HSV and LAB masks for accurate red and green pillar recognition.</p> </td> <td align="center"> <a href="https://www.youtube.com/shorts/6pMi8gZCbPo" target="_blank"> <img src="https://img.youtube.com/vi/6pMi8gZCbPo/0.jpg" width="260"><br> <b>Back-and-Forth Test</b> </a> <p>Evaluates encoder feedback and traction symmetry during repeated motion cycles.</p> </td> </tr> <tr> <td align="center"> <a href="https://www.youtube.com/watch?v=ao2uUjXZPo4" target="_blank"> <img src="https://img.youtube.com/vi/ao2uUjXZPo4/0.jpg" width="260"><br> <b>Open Challenge – Clockwise</b> </a> <p>Performs a full clockwise lap with PD steering and lane-centering tuning.</p> </td> <td align="center"> <a href="https://www.youtube.com/watch?v=F6bJ-BMMgI8" target="_blank"> <img src="https://img.youtube.com/vi/F6bJ-BMMgI8/0.jpg" width="260"><br> <b>Open Challenge – Counter-Clockwise</b> </a> <p>Validates control symmetry and color detection in reverse direction runs.</p> </td> <td align="center"> <a href="https://www.youtube.com/watch?v=qPYCwgduaH8" target="_blank"> <img src="https://img.youtube.com/vi/qPYCwgduaH8/0.jpg" width="260"><br> <b>Obstacle Test V1</b> </a> <p>Tests autonomous obstacle detection and avoidance using PD.</p> </td> </tr> </table>                                         
 
 ### 6.2 Test Plan
 
@@ -182,13 +199,13 @@ Fully in-house engineering integration across software, electronics, and mechani
 
 ### 6.3 Metrics
 
-| Metric                                        | Measured Value  | Target        | Result |
-| --------------------------------------------- | --------------- | ------------- | ------ |
-| Average Speed                                 | 0.86 m/s        | ≥ 0.8 m/s     |  Pass |
-| Steering Range                                | 94° (46°–140°)  | ≥ 90°         |  Pass |
-| Camera FPS                                    | 28 fps          | ≥ 25 fps      |  Pass |
-| Power Stability                               | 5.02 V ± 0.05 V | 5.0 V ± 0.1 V |  Pass |
-| Runtime Battery (LiPo OVONIC 3S 50C 5200 mAh) | 18 min          | ≥ 15 min      |  Pass |
+| Metric                                        | Measured Value  | Target        | 
+| --------------------------------------------- | --------------- | ------------- | 
+| Average Speed                                 | 0.86 m/s        | ≥ 0.8 m/s     |  
+| Steering Range                                | 94° (46°–140°)  | ≥ 90°         |
+| Camera FPS                                    | 18 fps          | ≥ 25 fps      | 
+| Power Stability                               | 5.02 V ± 0.05 V | 5.0 V ± 0.1 V |  
+| Runtime Battery (LiPo OVONIC 3S 50C 5200 mAh) | 18 min          | ≥ 15 min      |  
 
 ### 6.4 Results
 

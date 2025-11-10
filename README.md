@@ -357,16 +357,6 @@ Data recording tools: OpenCV + Python + Arduino serial telemetry.
 
 ### 8.3 Quantitative Results
 
-| *Parameter*             | *Unit* | *v1.0* | *v2.0* | *v3.0 (Final)* | *Improvement (%)* |
-| :------------------------ | :------- | :------: | :------: | :--------------: | :-----------------: |
-| Maximum speed             | m/s      |    0   |    0  |        0       |        0       |
-| Average lateral error     | cm       |   0   |    0  |       0      |       0       |
-| Lap time (3.2 m track)    | s        |   0   |  0  |       0     |        0        |
-| LAB detection accuracy    | %        |   0    |    0   |       0       |        0        |
-| Parking success rate      | %        |     —    |   50  |       0       |        0        |
-| Average power consumption | W        |   0   |   0   |       0      |        0        |
-| Motor temperature         | °C       |   35   |    35   |      35      |     35        |
-
 LAB calibration provided higher robustness against lighting variations.
 
 PD control reduced lateral deviation by more than 70 %.

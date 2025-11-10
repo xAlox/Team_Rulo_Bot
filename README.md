@@ -334,6 +334,8 @@ The control philosophy remained “vision + encoder only”, with no ultrasonic 
 
 Each version was tested on the official WRO playfield under competition lighting conditions.
 
+[↑ Back to top](#top)
+
 ### 8.2 Testing Plan
 
 The testing plan focused on evaluating visual accuracy, control stability, and repeatability under real competition environments.
@@ -372,6 +374,8 @@ Iterative improvements reduced trajectory error by 72 %, increased maximum speed
 The final version (v3.0) meets all documentation, traceability, and performance standards required by the WRO Future Engineers 2025 competition.
 
 ---
+
+[↑ Back to top](#top)
 
 <a id="sec-9"></a>
 
@@ -427,6 +431,8 @@ Visual inspection and telemetry validation before each competition round.
 
 <a id="sec-10"></a>
 
+[↑ Back to top](#top)
+
 ## 10. Maintenance Plan, Quick Service, and Operational Robustness
 
 
@@ -446,6 +452,8 @@ Each subsystem (mechanical, electrical, and control) can be disassembled or repl
 
 The entire system can be fully disassembled in under 15 minutes, following a “serviceability-first” design that ensures minimal downtime during field operations.
 
+[↑ Back to top](#top)
+
 ### 10.2 Robustness Testing
 
 A series of tests were conducted to validate structural strength and operational stability under stress, vibration, and prolonged use.
@@ -461,6 +469,8 @@ A series of tests were conducted to validate structural strength and operational
 The robot demonstrates proven structural and thermal robustness with no degradation in performance after extended testing.
 The anti-Ackermann steering system maintained high durability and precise motion after multiple sessions.
 
+[↑ Back to top](#top)
+
 ### 10.3 Scheduled Maintenance
 
 A preventive and corrective maintenance plan ensures long-term reliability during training and competitions.
@@ -475,6 +485,7 @@ A preventive and corrective maintenance plan ensures long-term reliability durin
 | *Vision System (Camera)*     | Before each session      | Clean lens and verify LAB calibration.                | —                          | Logged in GitHub (color test).  |
 
 ---
+[↑ Back to top](#top)
 
 <a id="sec-11"></a>
 
@@ -494,7 +505,7 @@ Through extensive 3D printing, structural optimization, and partial component re
 |        **Modular Design**        | All parts assembled with M3 screws and Dupont connectors → fully detachable and serviceable.           |     **100% modular and sustainable**     |
 
 
-
+[↑ Back to top](#top)
 
 ### 11.2 Sustainability Approach
 
@@ -518,6 +529,7 @@ This experience taught us that sustainability doesn’t limit engineering—it e
 The development of *Team Rulo Bot* was organized into **five main engineering phases**: mechanical, electronics, software, integration, and optimization.
 Each phase was validated through functional testing and iterative adjustments, prioritizing stability, precision, and robustness before the official competition.
 
+[↑ Back to top](#top)
 ---
 
 ### 12.1 Milestone Schedule
@@ -531,7 +543,9 @@ Each phase was validated through functional testing and iterative adjustments, p
 |  **4. Integration** | Full assembly, servo calibration, latency evaluation, and PD fine-tuning.                                           | Stable autonomous navigation on the test track.                         |        In refinement       |
 | **5. Optimization** | Extended testing, electrical-consumption validation, and final track adjustments.                                   | Consistent and reliable performance under real conditions.              |    Ready for competition   |
 
+
 ---
+[↑ Back to top](#top)
 
 ### 12.2 Validation and Adjustments
 
@@ -563,7 +577,7 @@ Each phase was validated through functional testing and iterative adjustments, p
 </div>  
 
 
-
+[↑ Back to top](#top)
 ---
 
 <a id="sec-13"></a>
@@ -575,13 +589,15 @@ Each phase was validated through functional testing and iterative adjustments, p
 This project was not just a competition, but a story of growth and motivation. Team Rulo Bot became an inspiration within PUCMM, sparking interest among new students in robotics and applied engineering. Our journey proved that with dedication, curiosity, and discipline, it’s possible to achieve remarkable results in a very short time.
 We showed that engineering is not only about theory or simulations—it’s about passion, design, mistakes, solutions, and constant learning. Every iteration taught us something new about teamwork, leadership, technical documentation, and resilience.
 
-
+[↑ Back to top](#top)
 
 ### 13.2 Team Motivation, Engineering Experience, and Teamwork
 
 We were united by one goal: to proudly represent the Dominican Republic and our university at WRO 2025. Along the way, we learned to communicate better, to trust each other, and to merge our technical strengths toward a common purpose.
 Every late-night test, every fixed error, and every small success became a memory of what it truly means to be engineers—to learn fast, think differently, and never give up.
 (16.3 Agradecimientos, visión de futuro)
+
+[↑ Back to top](#top)
 
 ### 13.3  Acknowledgments and Future Vision
 
@@ -591,18 +607,18 @@ From now on, we aim to keep growing, innovating, and sharing what we’ve learne
 
 
 ---
-
+[↑ Back to top](#top)
 <a id="sec-14"></a>
 
 
-
+[↑ Back to top](#top)
 ## 14. Conclusion
 
 The *Team Rulo Bot* project represents a complete engineering journey — from concept design to the implementation of a functional autonomous system, built with passion, discipline, and teamwork.
 Throughout the process, the team integrated **mechanical precision**, **electronic reliability**, and **intelligent control through computer vision**, achieving a robust, efficient, and competition-ready platform for **WRO 2025**.
 
 ---
-
+[↑ Back to top](#top)
 ### 14.1 Key Achievements and Learnings
 
 **Mechanical Innovation:** Development of a fully 3D-printed anti-Ackermann steering system, structurally optimized for weight reduction and improved stability.
@@ -614,7 +630,7 @@ Throughout the process, the team integrated **mechanical precision**, **electron
 > Every mistake became an experiment, and every success a lesson on what engineering truly means: **to persist, to learn, and to create.**
 
 ---
-
+[↑ Back to top](#top)
 ### 14.2 Vision for Future Seasons
 
 Looking ahead, *Team Rulo Bot* will continue evolving toward a more intelligent, precise, and adaptive system.

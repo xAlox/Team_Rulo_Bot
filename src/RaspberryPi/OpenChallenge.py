@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Team Rulo Bot — WRO 2025
-# Autonomous vision: line color decision, PD lateral centering, front black turn,
-# and a final top-stop trigger with brief reverse after the 12th line.
-# Authors: Wilmer Reyes, Alfonso Duverge, Emil Velasquez
+"""
+Team Rulo Bot — Vision (GO-armed) — PD Turn + Side Centering
+LAB ColorCalibrator + fallback fijo (sin sliders de color).
+
+- Usa modelo LAB en ~/rulobot_lab_color_model.json (Mahalanobis).
+- Si no existe, usa umbrales fijos de respaldo (no tunables).
+- El panel TUNING NO tiene nada de color: solo cámara, morfología, PDs, y tiempos.
+"""
 
 import cv2, numpy as np, time, signal, json, os
 import serial, serial.tools.list_ports
 
-# ===================== Line counting / stop logic =====================
+# ===================== Parámetros de parada por líneas =====================
 NUM_LINES_TO_STOP = 12
-LINE_COOLDOWN_S   = 3
-POST_ALIGN_S      = 1.5  # kept for compatibility (not used to stop)
+LINE_COOLDOWN_S   = 2
+POST_ALIGN_S      = 3.3  # compatibilidad; no se usa para parar
 
-# ===================== Camera =====================
+# ===================== Cámara =====================
 CAM_INDEX = 0
 FRAME_W, FRAME_H = 640, 480
 FONT = cv2.FONT_HERSHEY_SIMPLEX
@@ -46,33 +50,48 @@ def send(ser, s):
     except Exception as e:
         print(f"[WARN] Serial write error: {e}")
 
-# ===================== ROIs (fractions x0,y0,x1,y1) =====================
+# ===================== ROIs (fracciones x0,y0,x1,y1) =====================
 ROIS = {
-    "ORANGE_BOT":     (0.25, 0.82, 0.75, 0.95),   # color/line counting (bottom)
-    "FRONT_SQ_RIGHT": (0.50, 0.59, 0.57, 0.70),   # front black (default turn RIGHT)
-    "FRONT_SQ_LEFT":  (0.43, 0.59, 0.50, 0.70),   # front black (turn LEFT)
-    "FRONT_SIDE_L":   (0.00, 0.60, 0.20, 0.67),   # side PD (left)
-    "FRONT_SIDE_R":   (0.80, 0.60, 1.00, 0.67),   # side PD (right)
-    "TOP_STOP":       (0.43, 0.40, 0.57, 0.70),   # final stop: black ahead, upper ROI
+    "ORANGE_BOT":     (0.20, 0.82, 0.80, 0.95),  # abajo: decisión/lineas naranja-azul
+
+    # FRONT: por defecto RIGHT / alternativo LEFT
+    "FRONT_SQ_RIGHT": (0.50, 0.60, 0.57, 0.75),
+    "FRONT_SQ_LEFT":  (0.43, 0.60, 0.50, 0.75),
+
+    # Laterales (PD lateral)
+    "FRONT_SIDE_L":   (0.00, 0.63, 0.20, 0.80),
+    "FRONT_SIDE_R":   (0.80, 0.63, 1.00, 0.80),
+
+    # ROI superior para paro final por negro
+    "TOP_STOP":       (0.43, 0.43, 0.57, 0.70),
 }
 
-# ===================== Servo / control =====================
+# ===================== Servo & control =====================
 SERVO_CENTER    = 84
-SERVO_LEFT_LIM  = 24
-SERVO_RIGHT_LIM = 144
+SERVO_LEFT_LIM  = 28
+SERVO_RIGHT_LIM = 140
 
-TURN_BIAS_DEG   = 30.0       # constant bias during front-black turning (R:+ / L:-)
-SIDE_BLEND_IN_TURN = 0.5     # mix some side PD while turning
-FRONT_BLACK_HYST_FRACT = 0.6 # hysteresis to exit the front-black turn
-TX_PERIOD = 0.015            # ~66 Hz
+TURN_BIAS_DEG   = 32.0
+SIDE_BLEND_IN_TURN = 0.5
+FRONT_BLACK_HYST_FRACT = 0.6
+TX_PERIOD = 0.015
 
-# Lateral PD (area difference of side black masks)
-Kp_side = 70.0
-Kd_side = 190.0
+# === Lateral PD clásico (constantes) ===
+Kp_side = 30.0
+Kd_side = 120.0
 SIDE_MAX_DEG = 13.0
 
-# ===================== Utils =====================
-def clamp(v, lo, hi):
+# === Lógica decisión de color (constantes SIN sliders) ===
+O_MIN_FRAC = 0.015   # fracción mínima de área naranja en ORANGE_BOT
+O_MIN_H    = 7       # altura mínima bbox
+O_STABLE   = 1       # frames consecutivos
+B_MIN_FRAC = 0.015
+B_MIN_H    = 10
+B_STABLE   = 2
+COLOR_DECISION_MARGIN = 1.35  # ventaja mínima de un color sobre el otro
+
+# ===================== Helpers =====================
+def clamp(v, lo, hi): 
     return lo if v < lo else (hi if v > hi else v)
 
 def frac_to_rect(img, f):
@@ -90,32 +109,48 @@ def largest_contour(mask):
     best = max(cnts, key=cv2.contourArea)
     return best, cv2.contourArea(best)
 
-# ===================== Tuning (sliders + persistence) =====================
-CONFIG_PATH = os.path.expanduser("~/.rulobot_vision_tuning.json")
+# ===================== Archivos / modelos =====================
+LAB_MODEL_PATH    = os.path.expanduser("~/rulobot_lab_color_model.json")  # ColorCalibrator
+HSV_TUNING_PATH   = os.path.expanduser("~/.rulobot_vision_tuning.json")   # solo para NO-color (cámara/PD/timers)
+
+def load_json(path):
+    try:
+        with open(path, "r") as f: return json.load(f)
+    except Exception: return None
+
+LAB = load_json(LAB_MODEL_PATH)  # dict con claves: orange, blue, black, green, red
+
+def get_lab_model(name: str):
+    if not LAB: return None
+    aliases = {
+        "orange": ["orange","naranja","line_orange","O"],
+        "blue":   ["blue","azul","line_blue","B"],
+        "black":  ["black","negro","wall","floor_black"],
+        "green":  ["green","verde","pillar_green","G"],
+        "red":    ["red","rojo","pillar_red","R"],
+    }
+    for key, arr in aliases.items():
+        if name.lower() in arr: return LAB.get(key, None)
+    return LAB.get(name, None)
+
+# ===================== TUNING (sin color) =====================
+CONFIG_PATH = HSV_TUNING_PATH  # reusamos archivo, pero solo para NO-color
 
 DEFAULTS = {
-    # Global gains (applied to whole frame)
+    # --- Cámara / imagen ---
     "GainS_global": 120, "GainV_global": 90, "Gamma_x100": 100,
-    # Orange / Blue HSV and white suppression
-    "O_Hmin": 5, "O_Hmax": 30, "O_Smin": 80, "O_Vmin": 80,
-    "B_Hmin": 100, "B_Hmax": 130, "B_Smin": 110, "B_Vmin": 40,
-    "W_Smax": 70, "W_Vmin": 190,
-    # Black (LAB + HSV)
-    "L_min": 0, "L_max": 95, "A_tol": 25, "B_tol": 25,
-    "Blk_Vmax": 120, "Blk_Smax": 120,
-    # Morphology
+
+    # --- Morfología ---
     "Kernel": 5,
-    # Front black area threshold (enter/exit with hysteresis)
-    "FrontA_T": 1600,
-    # PD for front turn (x100)
+
+    # --- Umbral área frontal para giro ---
+    "FrontA_T":  1600,
+
+    # --- PD giro (x100) ---
     "Kp_turn": 10, "Kd_turn": 25,
-    # Line color sensitivity / stability
-    "O_minFrac_x1000": 15, "O_minH": 7,  "O_stable": 1,
-    "B_minFrac_x1000": 15, "B_minH": 10, "B_stable": 2,
-    "ColorMargin_x100": 135,
-    # Delayed side PD after GO (ms)
+
+    # --- Delay PD lateral / Timers TOP STOP ---
     "SidePD_delay_ms": 600,
-    # Final stop (top ROI) after 12th line
     "TopStop_delay_ms": 1500,
     "TopStop_back_ms":  250,
     "TopStop_area_T":   1200
@@ -123,92 +158,54 @@ DEFAULTS = {
 
 def build_tuner():
     cv2.namedWindow("TUNING", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("TUNING", 580, 840)
+    cv2.resizeWindow("TUNING", 520, 460)
 
-    # Global
+    # Cámara
     cv2.createTrackbar("GainS_gl x100", "TUNING", 0, 300, lambda x: None)
     cv2.createTrackbar("GainV_gl x100", "TUNING", 0, 300, lambda x: None)
     cv2.createTrackbar("Gamma x100",    "TUNING", 30, 300, lambda x: None)
 
-    # Orange / Blue
-    cv2.createTrackbar("O Hmin", "TUNING", 0, 179, lambda x: None)
-    cv2.createTrackbar("O Hmax", "TUNING", 0, 179, lambda x: None)
-    cv2.createTrackbar("O Smin", "TUNING", 0, 255, lambda x: None)
-    cv2.createTrackbar("O Vmin", "TUNING", 0, 255, lambda x: None)
-    cv2.createTrackbar("B Hmin", "TUNING", 0, 179, lambda x: None)
-    cv2.createTrackbar("B Hmax", "TUNING", 0, 179, lambda x: None)
-    cv2.createTrackbar("B Smin", "TUNING", 0, 255, lambda x: None)
-    cv2.createTrackbar("B Vmin", "TUNING", 0, 255, lambda x: None)
+    # Morfología / Giro frontal / PDs
+    cv2.createTrackbar("Kernel",        "TUNING", 1, 15,  lambda x: None)
+    cv2.createTrackbar("FrontArea T",   "TUNING", 0, 10000, lambda x: None)
+    cv2.createTrackbar("Kp_turn x100",  "TUNING", 0, 400, lambda x: None)
+    cv2.createTrackbar("Kd_turn x100",  "TUNING", 0, 400, lambda x: None)
 
-    # White suppression
-    cv2.createTrackbar("W Smax", "TUNING", 0, 255, lambda x: None)
-    cv2.createTrackbar("W Vmin", "TUNING", 0, 255, lambda x: None)
+    # Delays
+    cv2.createTrackbar("SidePD delay ms","TUNING", 0, 3000, lambda x: None)
 
-    # Black (LAB + HSV)
-    cv2.createTrackbar("L min", "TUNING", 0, 255, lambda x: None)
-    cv2.createTrackbar("L max", "TUNING", 0, 255, lambda x: None)
-    cv2.createTrackbar("A tol", "TUNING", 0, 64,  lambda x: None)
-    cv2.createTrackbar("B tol", "TUNING", 0, 64,  lambda x: None)
-    cv2.createTrackbar("Blk Vmax", "TUNING", 0, 255, lambda x: None)
-    cv2.createTrackbar("Blk Smax", "TUNING", 0, 255, lambda x: None)
-
-    # Morph / Front / PD turn
-    cv2.createTrackbar("Kernel", "TUNING", 1, 15, lambda x: None)
-    cv2.createTrackbar("FrontArea T", "TUNING", 0, 10000, lambda x: None)
-    cv2.createTrackbar("Kp_turn x100", "TUNING", 0, 400, lambda x: None)
-    cv2.createTrackbar("Kd_turn x100", "TUNING", 0, 400, lambda x: None)
-
-    # Color sensitivity / stability
-    cv2.createTrackbar("O frac x1000", "TUNING", 0, 200, lambda x: None)
-    cv2.createTrackbar("O hMin", "TUNING", 0, 100, lambda x: None)
-    cv2.createTrackbar("O stable", "TUNING", 0, 5, lambda x: None)
-    cv2.createTrackbar("B frac x1000", "TUNING", 0, 200, lambda x: None)
-    cv2.createTrackbar("B hMin", "TUNING", 0, 100, lambda x: None)
-    cv2.createTrackbar("B stable", "TUNING", 0, 5, lambda x: None)
-    cv2.createTrackbar("Margin x100", "TUNING", 100, 300, lambda x: None)
-
-    # Delays and top-stop
-    cv2.createTrackbar("SidePD delay ms", "TUNING", 0, 3000, lambda x: None)
-    cv2.createTrackbar("TopStop delay ms", "TUNING", 0, 4000, lambda x: None)
-    cv2.createTrackbar("TopStop back ms",  "TUNING", 0, 2000, lambda x: None)
-    cv2.createTrackbar("TopStop area T",   "TUNING", 0, 20000, lambda x: None)
+    # TOP STOP
+    cv2.createTrackbar("TopStop delay ms","TUNING", 0, 4000, lambda x: None)
+    cv2.createTrackbar("TopStop back ms", "TUNING", 0, 2000, lambda x: None)
+    cv2.createTrackbar("TopStop area T",  "TUNING", 0, 20000, lambda x: None)
 
 def set_trackbar_positions(cfg):
     c = (DEFAULTS if cfg is None else {**DEFAULTS, **cfg})
-    setb = lambda n,v: cv2.setTrackbarPos(n, "TUNING", int(v))
+    setb = lambda name, val: cv2.setTrackbarPos(name, "TUNING", int(val))
     for k,v in [
-        ("GainS_gl x100",c["GainS_global"]), ("GainV_gl x100",c["GainV_global"]), ("Gamma x100",c["Gamma_x100"]),
-        ("O Hmin",c["O_Hmin"]), ("O Hmax",c["O_Hmax"]), ("O Smin",c["O_Smin"]), ("O Vmin",c["O_Vmin"]),
-        ("B Hmin",c["B_Hmin"]), ("B Hmax",c["B_Hmax"]), ("B Smin",c["B_Smin"]), ("B Vmin",c["B_Vmin"]),
-        ("W Smax",c["W_Smax"]), ("W Vmin",c["W_Vmin"]),
-        ("L min",c["L_min"]), ("L max",c["L_max"]), ("A tol",c["A_tol"]), ("B tol",c["B_tol"]),
-        ("Blk Vmax",c["Blk_Vmax"]), ("Blk Smax",c["Blk_Smax"]),
-        ("Kernel",c["Kernel"]), ("FrontArea T",c["FrontA_T"]),
-        ("Kp_turn x100",c["Kp_turn"]), ("Kd_turn x100",c["Kd_turn"]),
-        ("O frac x1000",c["O_minFrac_x1000"]), ("O hMin",c["O_minH"]), ("O stable",c["O_stable"]),
-        ("B frac x1000",c["B_minFrac_x1000"]), ("B hMin",c["B_minH"]), ("B stable",c["B_stable"]),
-        ("Margin x100",c["ColorMargin_x100"]),
+        ("GainS_gl x100",c["GainS_global"]),
+        ("GainV_gl x100",c["GainV_global"]),
+        ("Gamma x100",   c["Gamma_x100"]),
+        ("Kernel",       c["Kernel"]),
+        ("FrontArea T",  c["FrontA_T"]),
+        ("Kp_turn x100", c["Kp_turn"]),
+        ("Kd_turn x100", c["Kd_turn"]),
         ("SidePD delay ms",c["SidePD_delay_ms"]),
         ("TopStop delay ms",c["TopStop_delay_ms"]),
-        ("TopStop back ms",c["TopStop_back_ms"]),
-        ("TopStop area T",c["TopStop_area_T"]),
+        ("TopStop back ms", c["TopStop_back_ms"]),
+        ("TopStop area T",  c["TopStop_area_T"]),
     ]: setb(k,v)
 
 def read_tuner():
     g = lambda n: cv2.getTrackbarPos(n,"TUNING")
     return dict(
-        GainS_global=g("GainS_gl x100"), GainV_global=g("GainV_gl x100"), Gamma_x100=g("Gamma x100"),
-        O_Hmin=g("O Hmin"), O_Hmax=g("O Hmax"), O_Smin=g("O Smin"), O_Vmin=g("O Vmin"),
-        B_Hmin=g("B Hmin"), B_Hmax=g("B Hmax"), B_Smin=g("B Smin"), B_Vmin=g("B Vmin"),
-        W_Smax=g("W Smax"), W_Vmin=g("W Vmin"),
-        L_min=g("L min"), L_max=g("L max"), A_tol=g("A tol"), B_tol=g("B tol"),
-        Blk_Vmax=g("Blk Vmax"), Blk_Smax=g("Blk Smax"),
+        GainS_global=g("GainS_gl x100"),
+        GainV_global=g("GainV_gl x100"),
+        Gamma_x100=g("Gamma x100"),
         Kernel=max(1, g("Kernel")|1),
         FrontA_T=g("FrontArea T"),
-        Kp_turn=g("Kp_turn x100"), Kd_turn=g("Kd_turn x100"),
-        O_minFrac_x1000=g("O frac x1000"), O_minH=g("O hMin"), O_stable=g("O stable"),
-        B_minFrac_x1000=g("B frac x1000"), B_minH=g("B hMin"), B_stable=g("B stable"),
-        ColorMargin_x100=g("Margin x100"),
+        Kp_turn=g("Kp_turn x100"),
+        Kd_turn=g("Kd_turn x100"),
         SidePD_delay_ms=g("SidePD delay ms"),
         TopStop_delay_ms=g("TopStop delay ms"),
         TopStop_back_ms=g("TopStop back ms"),
@@ -231,9 +228,8 @@ def load_config(path=CONFIG_PATH):
     except Exception:
         return None
 
-# ===================== Image-level gains =====================
+# ===================== Procesado global imagen =====================
 def apply_global_gains(bgr, gs_x100, gv_x100, gamma_x100):
-    """Simple global S/V gain + gamma in HSV; keeps tuning visible/consistent."""
     hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
     h,s,v = cv2.split(hsv)
     s = np.clip((s.astype(np.float32) * (gs_x100/100.0)), 0, 255)
@@ -243,17 +239,66 @@ def apply_global_gains(bgr, gs_x100, gv_x100, gamma_x100):
     hsv_adj = cv2.merge([h, s.astype(np.uint8), v.astype(np.uint8)])
     return cv2.cvtColor(hsv_adj, cv2.COLOR_HSV2BGR)
 
-# ===================== Color / Black detections =====================
-def detect_orange(proc_bgr, rect, P):
-    """Return (area, bbox_h) of strongest orange blob in ROI; suppress white glare."""
+# ===================== Color: LAB + Mahalanobis / Fallback fijo =====================
+# Fallback HSV fijo (solo si no hay modelo LAB); NO es tunable.
+FALLBACK_ORANGE_HSV = (5, 30, 80, 80)     # (hmin,hmax,smin,vmin)
+FALLBACK_BLUE_HSV   = (100, 130, 110, 40)
+
+# Fallback negro (LAB+HSV) fijo
+FALLBACK_BLACK = dict(L_min=0, L_max=95, A_tol=25, B_tol=25, Blk_Vmax=120, Blk_Smax=120)
+
+def mahalanobis_mask(bgr, model):
+    """model: {'mean':[a,b], 'cov_inv':[[..],[..]], 'tau2':float} en (A,B) de LAB."""
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+    A = lab[:,:,1].astype(np.float32)
+    B = lab[:,:,2].astype(np.float32)
+    mean = np.array(model["mean"], dtype=np.float32)
+    cov_inv = np.array(model["cov_inv"], dtype=np.float32)
+    tau2 = float(model["tau2"])
+    X = np.stack([A - mean[0], B - mean[1]], axis=-1)
+    dist2 = np.einsum('...i,ij,...j->...', X, cov_inv, X)
+    return (dist2 <= tau2).astype(np.uint8) * 255
+
+def mask_color(bgr, name):
+    """Color por LAB si hay modelo; si no, HSV fijo."""
+    m = get_lab_model(name)
+    if m is not None:
+        return mahalanobis_mask(bgr, m)
+    if name == "orange":
+        hmin,hmax,smin,vmin = FALLBACK_ORANGE_HSV
+    elif name == "blue":
+        hmin,hmax,smin,vmin = FALLBACK_BLUE_HSV
+    else:
+        # para otros colores no usados en este script
+        hmin,hmax,smin,vmin = 0,0,0,255
+    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
+    return cv2.inRange(hsv, (hmin,smin,vmin), (hmax,255,255))
+
+def mask_black(bgr):
+    """Negro por LAB si hay modelo; si no, fallback fijo combinado."""
+    m = get_lab_model("black")
+    if m is not None:
+        return mahalanobis_mask(bgr, m)
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+    L = lab[:,:,0]; A = lab[:,:,1]; B = lab[:,:,2]
+    mL = cv2.inRange(L, FALLBACK_BLACK["L_min"], FALLBACK_BLACK["L_max"])
+    mA = cv2.inRange(A, 128-FALLBACK_BLACK["A_tol"], 128+FALLBACK_BLACK["A_tol"])
+    mB = cv2.inRange(B, 128-FALLBACK_BLACK["B_tol"], 128+FALLBACK_BLACK["B_tol"])
+    mLAB = cv2.bitwise_and(cv2.bitwise_and(mL,mA), mB)
+    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
+    S = hsv[:,:,1]; V = hsv[:,:,2]
+    mHSV = cv2.inRange(S, 0, FALLBACK_BLACK["Blk_Smax"]) & cv2.inRange(V, 0, FALLBACK_BLACK["Blk_Vmax"])
+    m = cv2.bitwise_and(mLAB, mHSV)
+    k = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
+    m = cv2.GaussianBlur(m,(5,5),0); m = cv2.erode(m,k,1); m = cv2.dilate(m,k,1)
+    return m
+
+# ===================== Detecciones =====================
+def detect_orange(proc_bgr, rect, kernel):
     x0,y0,x1,y1 = rect
     roi = proc_bgr[y0:y1, x0:x1]
-    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-    m1 = cv2.inRange(hsv, (P["O_Hmin"], P["O_Smin"], P["O_Vmin"]), (P["O_Hmax"],255,255))
-    mW1 = cv2.inRange(hsv, (0,0,P["W_Vmin"]), (179,255,255))
-    mW2 = cv2.inRange(hsv, (0,0,0), (179,P["W_Smax"],255))
-    m = cv2.bitwise_and(m1, cv2.bitwise_not(mW1|mW2))
-    k = cv2.getStructuringElement(cv2.MORPH_RECT,(P["Kernel"],P["Kernel"]))
+    m = mask_color(roi, "orange")
+    k = cv2.getStructuringElement(cv2.MORPH_RECT,(kernel,kernel))
     m = cv2.GaussianBlur(m,(5,5),0); m = cv2.erode(m,k,1); m = cv2.dilate(m,k,1)
     cnts = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     best=None
@@ -267,16 +312,11 @@ def detect_orange(proc_bgr, rect, P):
         cv2.rectangle(roi, (x,y), (x+w,y+h), (0,140,255), 2)
     return area, hbox
 
-def detect_blue(proc_bgr, rect, P):
-    """Return (area, bbox_h) of strongest blue blob in ROI; suppress white glare."""
+def detect_blue(proc_bgr, rect, kernel):
     x0,y0,x1,y1 = rect
     roi = proc_bgr[y0:y1, x0:x1]
-    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-    m1 = cv2.inRange(hsv, (P["B_Hmin"], P["B_Smin"], P["B_Vmin"]), (P["B_Hmax"],255,255))
-    mW1 = cv2.inRange(hsv, (0,0,P["W_Vmin"]), (179,255,255))
-    mW2 = cv2.inRange(hsv, (0,0,0), (179,P["W_Smax"],255))
-    m = cv2.bitwise_and(m1, cv2.bitwise_not(mW1|mW2))
-    k = cv2.getStructuringElement(cv2.MORPH_RECT,(P["Kernel"],P["Kernel"]))
+    m = mask_color(roi, "blue")
+    k = cv2.getStructuringElement(cv2.MORPH_RECT,(kernel,kernel))
     m = cv2.GaussianBlur(m,(5,5),0); m = cv2.erode(m,k,1); m = cv2.dilate(m,k,1)
     cnts = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     best=None
@@ -290,19 +330,9 @@ def detect_blue(proc_bgr, rect, P):
         cv2.rectangle(roi, (x,y), (x+w,y+h), (255,120,0), 2)
     return area, hbox
 
-def black_mask_combined(proc_bgr, P):
-    """Robust black = (LAB in-range) AND (HSV low V,S)."""
-    lab = cv2.cvtColor(proc_bgr, cv2.COLOR_BGR2LAB)
-    L = lab[:,:,0]; A = lab[:,:,1]; B = lab[:,:,2]
-    mL = cv2.inRange(L, P["L_min"], P["L_max"])
-    mA = cv2.inRange(A, 128-P["A_tol"], 128+P["A_tol"])
-    mB = cv2.inRange(B, 128-P["B_tol"], 128+P["B_tol"])
-    mLAB = cv2.bitwise_and(cv2.bitwise_and(mL,mA), mB)
-    hsv = cv2.cvtColor(proc_bgr, cv2.COLOR_BGR2HSV)
-    H,S,V = cv2.split(hsv)
-    mHSV = cv2.inRange(S, 0, P["Blk_Smax"]) & cv2.inRange(V, 0, P["Blk_Vmax"])
-    m = cv2.bitwise_and(mLAB, mHSV)
-    k = cv2.getStructuringElement(cv2.MORPH_RECT,(P["Kernel"],P["Kernel"]))
+def black_mask_combined(proc_bgr, kernel):
+    m = mask_black(proc_bgr)
+    k = cv2.getStructuringElement(cv2.MORPH_RECT,(kernel,kernel))
     m = cv2.GaussianBlur(m,(5,5),0); m = cv2.erode(m,k,1); m = cv2.dilate(m,k,1)
     return m
 
@@ -317,28 +347,29 @@ def main():
     cap = open_cam(CAM_INDEX)
     ser = open_serial(115200)
 
-    win = "Team Rulo Bot — PD Turn + Side Centering"
+    win = "Team Rulo Bot — PD Turn + Side Centering (LAB compatible; sin sliders de color)"
     cv2.namedWindow(win, cv2.WINDOW_NORMAL); cv2.resizeWindow(win, 960, 720)
     build_tuner()
     cfg = load_config()
     set_trackbar_positions(cfg)
 
-    # State
+    # Estados
     armed=False
-    selected_turn=None  # 'R' / 'L' (chosen by bottom color)
+    selected_turn=None
     orange_hits=0; blue_hits=0
     turning=False
     prev_err_turn=0.0
     prev_err_side = 0.0
     last_tx_ts=0.0
 
+    # Conteo de líneas
     line_count = 0
     last_line_ts = 0.0
 
-    # Side PD enable delay after GO
+    # Side PD delay
     sidepd_enable_at = 0.0
 
-    # Final stop after 12th line (top ROI)
+    # Paro final
     topstop_arm_ts = 0.0
     topstop_armed = False
     topstop_done = False
@@ -352,14 +383,11 @@ def main():
         n+=1; t1=time.time()
         if (t1-t0)>=1.0: fps=n/(t1-t0); n=0; t0=t1
 
+        # Sliders NO-color
         P = read_tuner()
         Kp_turn = P["Kp_turn"]/100.0
         Kd_turn = P["Kd_turn"]/100.0
-        O_minFrac = P["O_minFrac_x1000"]/1000.0
-        B_minFrac = P["B_minFrac_x1000"]/1000.0
-        O_minH    = int(P["O_minH"]); B_minH = int(P["B_minH"])
-        O_stable  = max(1,int(P["O_stable"])); B_stable = max(1,int(P["B_stable"]))
-        COLOR_DECISION_MARGIN = max(1.0, P["ColorMargin_x100"]/100.0)
+        kernel   = int(P["Kernel"])
 
         frame = apply_global_gains(frame_raw, P["GainS_global"], P["GainV_global"], P["Gamma_x100"])
 
@@ -373,14 +401,14 @@ def main():
         sideR   = frac_to_rect(frame, ROIS["FRONT_SIDE_R"])
         topStopR= frac_to_rect(frame, ROIS["TOP_STOP"])
 
-        # Draw ROIs (debug)
+        # Dibujar ROIs
         draw_roi(frame, orangeR, "LINE/DECISION")
         draw_roi(frame, frontR,  front_label, (0,255,255))
         draw_roi(frame, sideL,   "SIDE_L", (0,255,0))
         draw_roi(frame, sideR,   "SIDE_R", (0,255,0))
         draw_roi(frame, topStopR,"TOP_STOP", (255,0,255))
 
-        # GO/STOP from MCU
+        # RX GO/STOP
         if ser and ser.in_waiting:
             try:
                 rx_buf += ser.read(ser.in_waiting)
@@ -410,55 +438,56 @@ def main():
 
         now = time.time()
 
-        # ---------- Bottom color: choose turn direction (once) ----------
+        # --- Detección en ROI inferior (naranja/azul) ---
         x0,y0,x1,y1 = orangeR
         roi_area_color = max(1,(x1-x0)*(y1-y0))
-        aO,hO = detect_orange(frame, orangeR, P)
-        aB,hB = detect_blue(frame,  orangeR, P)
+        aO,hO = detect_orange(frame, orangeR, kernel)
+        aB,hB = detect_blue(frame,  orangeR, kernel)
         fracO = aO/roi_area_color; fracB = aB/roi_area_color
 
+        # Decisión de color (sin sliders)
         if armed and (selected_turn is None):
-            orange_hits = (orange_hits+1) if (fracO>=O_minFrac and hO>=O_minH) else 0
-            blue_hits   = (blue_hits+1)   if (fracB>=B_minFrac and hB>=B_minH) else 0
-            if orange_hits>=O_stable and (blue_hits==0 or fracO>=fracB*COLOR_DECISION_MARGIN):
+            orange_hits = (orange_hits+1) if (fracO>=O_MIN_FRAC and hO>=O_MIN_H) else 0
+            blue_hits   = (blue_hits+1)   if (fracB>=B_MIN_FRAC and hB>=B_MIN_H) else 0
+            if orange_hits>=O_STABLE and (blue_hits==0 or fracO>=fracB*COLOR_DECISION_MARGIN):
                 selected_turn='R'; print("[MODE] TURN RIGHT (orange)")
-            elif blue_hits>=B_stable and (orange_hits==0 or fracB>=fracO*COLOR_DECISION_MARGIN):
+            elif blue_hits>=B_STABLE and (orange_hits==0 or fracB>=fracO*COLOR_DECISION_MARGIN):
                 selected_turn='L'; print("[MODE] TURN LEFT (blue)")
 
-        # ---------- Line counting (no hard stop) ----------
-        saw_line = (fracO>=O_minFrac) or (fracB>=B_minFrac)
+        # Conteo de líneas
+        saw_line = (fracO>=O_MIN_FRAC) or (fracB>=B_MIN_FRAC)
         if armed and saw_line:
             if (now - last_line_ts) >= LINE_COOLDOWN_S:
                 line_count += 1
                 last_line_ts = now
                 print(f"[LINE] count = {line_count}")
                 if (line_count == NUM_LINES_TO_STOP):
-                    # Arm top-stop after adjustable delay; vehicle keeps running normally
                     topstop_arm_ts = now + (P["TopStop_delay_ms"]/1000.0)
                     topstop_armed = False
                     topstop_done  = False
                     print(f"[TOPSTOP] armed to activate at +{P['TopStop_delay_ms']} ms")
 
+        # Armar top-stop tras el delay
         if (not topstop_armed) and (topstop_arm_ts>0.0) and (now >= topstop_arm_ts):
             topstop_armed = True
             print("[TOPSTOP] ARMED: watching TOP_STOP ROI for black")
 
-        # ---------- Black masks (front + sides) ----------
+        # Negro frontal y laterales
         fx0,fy0,fx1,fy1 = frontR
         roi_front = frame[fy0:fy1, fx0:fx1]
-        m_front = black_mask_combined(roi_front, P)
+        m_front = black_mask_combined(roi_front, kernel)
         cntF, area_front = largest_contour(m_front)
         if cntF is not None: cv2.drawContours(roi_front, [cntF], -1, (0,255,255), 2)
         cv2.addWeighted(roi_front,0.65,cv2.cvtColor(m_front,cv2.COLOR_GRAY2BGR),0.35,0,roi_front)
 
         slx0,sly0,slx1,sly1 = sideL; srx0,sry0,srx1,sry1 = sideR
         roi_l = frame[sly0:sly1, slx0:slx1]; roi_r = frame[sry0:sry1, srx0:srx1]
-        m_l = black_mask_combined(roi_l, P); m_r = black_mask_combined(roi_r, P)
+        m_l = black_mask_combined(roi_l, kernel); m_r = black_mask_combined(roi_r, kernel)
         cv2.addWeighted(roi_l,0.65,cv2.cvtColor(m_l,cv2.COLOR_GRAY2BGR),0.35,0,roi_l)
         cv2.addWeighted(roi_r,0.65,cv2.cvtColor(m_r,cv2.COLOR_GRAY2BGR),0.35,0,roi_r)
         area_l = float(cv2.countNonZero(m_l)); area_r = float(cv2.countNonZero(m_r))
 
-        # ---------- Front black turning state machine ----------
+        # ===== Gestión de giro =====
         if armed and (selected_turn is not None):
             enter = (area_front >= float(P["FrontA_T"]))
             exit_ = (area_front <= float(P["FrontA_T"])*FRONT_BLACK_HYST_FRACT)
@@ -467,16 +496,16 @@ def main():
             elif turning and exit_:
                 turning=False; send(ser,"TURN_OFF"); print("[MODE] TURNING=OFF")
 
-        # ---------- Side PD (centering on black area difference) ----------
+        # ===== PD lateral =====
         err_side = area_l - area_r
         d_err_side = err_side - prev_err_side
         prev_err_side = err_side
         side_pd = (Kp_side * err_side) + (Kd_side * d_err_side)
         side_pd = float(clamp(side_pd, -SIDE_MAX_DEG, SIDE_MAX_DEG))
         if now < sidepd_enable_at:
-            side_pd = 0.0  # delay at start to avoid early wobble
+            side_pd = 0.0
 
-        # ---------- PD turn (front contour centroid) ----------
+        # ===== PD de giro (frontal) =====
         effective_turning = turning
         turn_pd = 0.0
         bias = 0.0
@@ -487,21 +516,20 @@ def main():
                 roi_cx = (fx1-fx0)//2
                 err_turn = float(cx - roi_cx)
                 d_err_turn = err_turn - prev_err_turn
-                turn_pd = (P["Kp_turn"]/100.0 * err_turn) + (P["Kd_turn"]/100.0 * d_err_turn)
+                turn_pd = (Kp_turn * err_turn) + (Kd_turn * d_err_turn)
                 prev_err_turn = err_turn
         if selected_turn is not None and effective_turning:
             bias = TURN_BIAS_DEG if (selected_turn == 'R') else -TURN_BIAS_DEG
 
-        # ---------- Final Top-Stop (after 12th line, upper ROI sees black) ----------
+        # ===== TOP STOP =====
         if topstop_armed and (not topstop_done):
             tx0,ty0,tx1,ty1 = topStopR
             roi_top = frame[ty0:ty1, tx0:tx1]
-            m_top = black_mask_combined(roi_top, P)
+            m_top = black_mask_combined(roi_top, kernel)
             area_top = float(cv2.countNonZero(m_top))
             cv2.addWeighted(roi_top,0.65,cv2.cvtColor(m_top,cv2.COLOR_GRAY2BGR),0.35,0,roi_top)
 
             if area_top >= float(P["TopStop_area_T"]):
-                # Issue: center steer, brief reverse, then STOP
                 steer_cmd = SERVO_CENTER
                 send(ser, f"STEER:{steer_cmd}")
                 send(ser, f"REV:{int(P['TopStop_back_ms'])}")
@@ -511,7 +539,7 @@ def main():
                 topstop_done=True
                 print(f"[TOPSTOP] Triggered (area={int(area_top)}). REV {P['TopStop_back_ms']} ms + STOP.")
 
-        # ---------- Output steering (normal running) ----------
+        # ===== Mezcla y envío =====
         if armed:
             if effective_turning:
                 steer = SERVO_CENTER + (bias + turn_pd + SIDE_BLEND_IN_TURN*side_pd)
@@ -522,7 +550,7 @@ def main():
                 send(ser, f"STEER:{steer}")
                 last_tx_ts = now
 
-        # HUD (debug only)
+        # HUD
         dir_txt  = {None:"WAIT_COLOR", 'R':"RIGHT", 'L':"LEFT"}[selected_turn]
         mode_txt = ("TURN" if turning else ("RUN" if armed else ("HALT" if topstop_done else "IDLE")))
         hud = f"{FRAME_W}x{FRAME_H}  ~{fps:.1f}fps  armed:{int(armed)}  DIR:{dir_txt}  mode:{mode_txt}  lines:{line_count}/{NUM_LINES_TO_STOP}"
@@ -534,9 +562,9 @@ def main():
         if key == ord('q'):
             save_config(read_tuner()); break
         elif key == ord('s'):
-            save_config(read_tuner()); print("[CFG] Saved (s).")
+            save_config(read_tuner()); print("[CFG] Guardado manual (s).")
         elif key == ord('r'):
-            set_trackbar_positions(DEFAULTS); print("[CFG] Reset to defaults.")
+            set_trackbar_positions(DEFAULTS); print("[CFG] Reset a defaults.")
 
     cap.release()
     cv2.destroyAllWindows()

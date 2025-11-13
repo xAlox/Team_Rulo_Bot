@@ -24,18 +24,16 @@
 
 ## 1.1 Overview & Repository Content
 
-| Folder/File             | Description                                                                                                                     |
-| :---------------------- | :------------------------------------------------------------------------------------------------------------------------------ |
-| **3D_models**         | 3D models of the vehicle and rendered images.                                                                                   |
-| **schemes**           | Electrical and electronic schematic diagrams (PNG).                                                                             |
-| **technical_reports** | Engineering documentation (Mechanical, Electronics &  Software Architecture, Mobility management ,Power and sensor management, Obstacle management, Development History & Modifications) |
-| **src**               | Source code for Raspberry Pi (Python) and Arduino (C++): PD steering, obstacle avoidance and vision algorithms.                 |
-| **t-photos**          | Photos of Team Rulo Bot during competition sessions, testing and behind-the-scenes moments.                                     |
-| **t-videos**          | YouTube links or embedded demos showing the robot’s performance in each mission.                                                |
-| **robot-photos**      | Gallery of the robot including top, side and front perspectives of the vehicle.                                                 |
-| **readme**            | Team, Executive Summary, BOM, Gallery, Testing & Validation, Project Management                                                 |
-
----
+| Folder/File          | Description                                                                                                                                    |
+|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| **3D_Models**        | 3D models of the vehicle and rendered parts. [Open](./3D_Models/)                                                                              |
+| **Schemes**          | Electrical and electronic schematic diagrams (PNG). [Open](./Schemes/)                                                                         |
+| **Technical_Reports**| Full engineering documentation (mechanical, electronics, software, mobility, power, sensors, obstacles, development history). [Open](./Technical_Reports/) |
+| **src**              | Source code for Raspberry Pi (Python) and Arduino (C++): PD steering, obstacle avoidance, vision algorithms. [Open](./src/)                   |
+| **t-photos**         | Photos from testing sessions, calibration, competitions, and behind-the-scenes work. [Open](./t-photos/)                                       |
+| **t-videos**         | Testing videos demonstrating navigation, avoidance, parking, and performance. [Open](./t-videos/)                                              |
+| **Robot_photos**     | Complete gallery of the robot: top, side, front, rear, and bottom views. [Open](./Robot_photos/)                                              |
+| **README**           | Team info, executive summary, BOM, galleries, testing & validation, project management.                                                        |
 
 ### Table of Contents of README
 

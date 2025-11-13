@@ -209,7 +209,14 @@ This approach yields a strong, lightweight, functional chassis that meets compet
 constraints and ensures compatibility with standard components.
 
 # 8. 3D Part Design and Manufacturing Process
+
 ![WhatsApp Image 2025-11-09 at 22 01 40_abea0f08](https://github.com/user-attachments/assets/67f3d0dd-5303-4523-8c66-541120561b49)
+
+![WhatsApp Image 2025-11-11 at 01 02 32_84fd88e8](https://github.com/user-attachments/assets/7ac58edc-da11-4ac5-9c04-08dde038d92f)
+
+![WhatsApp Image 2025-11-11 at 01 02 31_8d1c0eb3](https://github.com/user-attachments/assets/49477f03-a503-4e19-826e-a3a790af0ff0)
+
+![WhatsApp Image 2025-11-11 at 01 02 30_e80b53b1](https://github.com/user-attachments/assets/1a72b903-d073-4b85-be79-70137416d8e7)
 
 8.1 Introduction
 
@@ -326,10 +333,6 @@ essential features for quick servicing during testing and competition.
 
 # 9. Evolution of Key Components
 <img width="567" height="100" alt="image" src="https://github.com/user-attachments/assets/e3e91317-e7c0-4971-a84f-da6a615befbd" />
-![WhatsApp Image 2025-11-11 at 01 02 32_352544c0](https://github.com/user-attachments/assets/4c1e5484-161d-4be5-b824-358b2e704344)
-![WhatsApp Image 2025-11-11 at 01 02 31_8989658f](https://github.com/user-attachments/assets/e3f107bf-0264-4638-bbd2-78bafc985985)
-![WhatsApp Image 2025-11-11 at 01 02 30_c0ce9fd5](https://github.com/user-attachments/assets/faf4a294-7e57-4736-963e-4a13fe368095)
-
 9.1. Camera Mount
 
 The camera mount was one of the most iterative elements of the design — four versions
@@ -385,3 +388,4 @@ electronic and control architecture.
 The knowledge and experience gained through this process will enable us to iterate and
 
 improve more efficiently in future stages of development and competition.
+

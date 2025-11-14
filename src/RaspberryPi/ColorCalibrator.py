@@ -1,293 +1,314 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-ColorCalibrator — RuloBot
-
-HSV + LAB auto-calibration script with forced saturation boost (S = 300%)
-and robust margins. This program collects multiple samples of each color
-under different lighting conditions to build a tuning configuration automatically.
-
-Colors calibrated:
- - GREEN block (obstacle)
- - RED block (obstacle)
- - BLUE line
- - ORANGE line
- - BLACK wall
-
-Each color is captured 5 times. Press 'c' to capture a sample with the object
-inside the ROI, or 'q' to cancel at any point.
-
-The resulting tuning values are saved to:
-    ~/.rulobot_vision_tuning.json
-and match the keys used by the main runtime.
+Team Rulo Bot — LAB Calibrator + Viewer (Mahalanobis) — Same Preprocessing as Runtime
+ES: Calibra clases LAB y muestra Viewer con los mismos GainS/GainV/Gamma/Kernel que usa Obstacle.
+    Guarda: ~/rulobot_lab_color_model.json y ~/.rulobot_vision_tuning.json
+EN: Calibrate LAB classes and preview masks using the same preprocessing as Obstacle runtime.
+Keys:
+  [1..6] select class (1=ORANGE,2=BLUE,3=RED,4=GREEN,5=BLACK,6=MAGENTA)
+  [c] capture ROI samples   [p] process models   [v] toggle viewer   [s] save   [q] quit
 """
 
 import cv2, numpy as np, json, os, time
 
-# ===================== CAMERA SETTINGS =====================
-CAM_INDEX = 0
-W, H = 640, 480
-FONT = cv2.FONT_HERSHEY_SIMPLEX
+# ============== Camera ==============
+CAM_INDEX = 0; W,H,FPS = 640,480,30
+FOURCC = 'MJPG'
+FONT   = cv2.FONT_HERSHEY_SIMPLEX
 
-# ===================== FILE PATH =====================
-CONFIG_PATH = os.path.expanduser("~/.rulobot_vision_tuning.json")
+# ============== Paths ==============
+MODEL_PATH = os.path.expanduser("~/rulobot_lab_color_model.json")
+CFG_PATH   = os.path.expanduser("~/.rulobot_vision_tuning.json")
 
-# ===================== FORCED IMAGE GAINS =====================
-# Force saturation to make colors more vivid and consistent
-GAIN_S = 300
-GAIN_V = 90
-GAMMA  = 1.00
+# ============== Classes ==============
+CLASSES = ["ORANGE","BLUE","RED","GREEN","BLACK","MAGENTA"]
+name_map_save = {"ORANGE":"orange","BLUE":"blue","RED":"red","GREEN":"green","BLACK":"black","MAGENTA":"magenta"}
 
-# ===================== CALIBRATION ROIs =====================
-# These are the ROIs used during calibration.
-# You can edit these fractions (x0, y0, x1, y1) to fit your setup.
-ROI_BLOCK = (0.30, 0.35, 0.70, 0.70)   # For color block calibration
-ROI_LINE  = (0.25, 0.87, 0.75, 0.95)   # For line calibration
-ROI_BLACK = (0.30, 0.50, 0.70, 0.70)   # For black wall/floor calibration
+# ============== ROIs (viewer & capture) ==============
+ROIS = {
+    "LINE_BOT":    (0.25, 0.87, 0.75, 0.95),
+    "CENTER_BAND": (0.00, 0.42, 1.00, 0.95),
+    "TURN_CENTER": (0.45, 0.47, 0.55, 0.85),
+    "WALL_L":      (0.13, 0.85, 0.24, 1.00),
+    "WALL_R":      (0.76, 0.85, 0.87, 1.00),
+}
+CAPTURE_RECT_FRAC = (0.30, 0.35, 0.70, 0.70)
+CAPTURE_KEEP_FRAC = 0.20
 
-# ===================== HELPER FUNCTIONS =====================
+# ============== Tuning defaults (match Obstacle) ==============
+DEFAULTS = dict(
+    GainS_global=120, GainV_global=90, Gamma_x100=100,
+    Kernel=5
+)
+
+# ============== State ==============
+state = {c: {"a":[], "b":[]} for c in CLASSES}
+TAU2  = 9.21       # chi^2, df=2 (~99%)
+MORPH = 5
+
+# ============== Helpers ==============
 def frac_to_rect(img, f):
-    """Convert fractional ROI (0–1) to absolute pixel coordinates."""
     h,w = img.shape[:2]
     return (int(f[0]*w), int(f[1]*h), int(f[2]*w), int(f[3]*h))
-
+def shrink_rect_centered(rect, keep_frac):
+    x0,y0,x1,y1=rect; cx=(x0+x1)/2; cy=(y0+y1)/2
+    nw=(x1-x0)*keep_frac; nh=(y1-y0)*keep_frac
+    nx0=int(round(cx-nw/2)); nx1=int(round(cx+nw/2))
+    ny0=int(round(cy-nh/2)); ny1=int(round(cy+nh/2))
+    return (nx0,ny0,nx1,ny1)
 def draw_roi(frame, rect, label, color=(0,255,255)):
-    """Draw a labeled rectangle on the frame for calibration guidance."""
     x0,y0,x1,y1 = rect
     cv2.rectangle(frame,(x0,y0),(x1,y1),color,2)
-    cv2.putText(frame,label,(x0+4,y0+18),FONT,0.6,color,2,cv2.LINE_AA)
-
-def apply_gains(bgr, s_gain=GAIN_S, v_gain=GAIN_V, gamma=GAMMA):
-    """Apply forced saturation and brightness to make colors stand out."""
+    cv2.putText(frame,label,(x0+4,max(y0-6,18)),FONT,0.55,color,2,cv2.LINE_AA)
+def largest_contour(mask):
+    cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    if not cnts: return None, 0.0
+    c = max(cnts, key=cv2.contourArea)
+    return c, float(cv2.contourArea(c))
+def apply_global_gains(bgr, gs_x100, gv_x100, gamma_x100):
     hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
-    H,S,V = cv2.split(hsv)
-    S = np.clip(S.astype(np.float32) * (s_gain/100.0), 0, 255)
-    V = np.clip(V.astype(np.float32) * (v_gain/100.0), 0, 255)
-    V = (np.clip(V/255.0,0,1)**max(0.3,float(gamma))) * 255.0
-    hsv2 = cv2.merge([H, S.astype(np.uint8), V.astype(np.uint8)])
-    return cv2.cvtColor(hsv2, cv2.COLOR_HSV2BGR)
+    h,s,v = cv2.split(hsv)
+    s = np.clip(s.astype(np.float32)*(gs_x100/100.0),0,255)
+    v = np.clip(v.astype(np.float32)*(gv_x100/100.0),0,255)
+    gamma = max(0.3, gamma_x100/100.0)
+    v = (np.clip(v/255.0,0,1)**gamma)*255.0
+    hsv_adj = cv2.merge([h, s.astype(np.uint8), v.astype(np.uint8)])
+    return cv2.cvtColor(hsv_adj, cv2.COLOR_HSV2BGR)
 
-def percentiles(a, p_low, p_high):
-    """Return lower and upper percentiles of a NumPy array."""
-    lo = np.percentile(a, p_low)
-    hi = np.percentile(a, p_high)
-    return float(lo), float(hi)
+def compute_maha_model(a_list, b_list, tau2=TAU2):
+    A = np.asarray(a_list, dtype=np.float32).reshape(-1,1)
+    B = np.asarray(b_list, dtype=np.float32).reshape(-1,1)
+    X = np.hstack([A,B])
+    if X.shape[0] < 5: return None
+    mean = X.mean(axis=0)
+    C = np.cov(X, rowvar=False)
+    C += np.eye(2)*1e-3
+    cov_inv = np.linalg.inv(C)
+    return {"mean":[float(mean[0]), float(mean[1])],
+            "cov_inv":[[float(cov_inv[0,0]), float(cov_inv[0,1])],
+                       [float(cov_inv[1,0]), float(cov_inv[1,1])]],
+            "tau2":float(tau2)}
 
-def tight_h_range(H, margin=5):
-    """
-    Compute a robust hue range with support for wrap-around (used for red).
-    Returns:
-        wrap (bool), hmin, hmax, R1, R2
-    """
-    H = H.astype(np.float32)
-    h5, h95 = percentiles(H, 5, 95)
-    hmin = max(0.0, h5 - margin)
-    hmax = min(179.0, h95 + margin)
+def mahalanobis_mask_from_model(bgr_roi, model):
+    lab = cv2.cvtColor(bgr_roi, cv2.COLOR_BGR2LAB)
+    A = lab[:,:,1].astype(np.float32); B = lab[:,:,2].astype(np.float32)
+    mean   = np.array(model["mean"], dtype=np.float32)
+    covinv = np.array(model["cov_inv"], dtype=np.float32)
+    tau2   = float(model["tau2"])
+    X = np.stack([A-mean[0], B-mean[1]], axis=-1)
+    dist2 = np.einsum('...i,ij,...j->...', X, covinv, X)
+    m = (dist2 <= tau2).astype(np.uint8)*255
+    k = cv2.getStructuringElement(cv2.MORPH_RECT,(MORPH,MORPH))
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, k, iterations=1)
+    m = cv2.morphologyEx(m, cv2.MORPH_CLOSE,k, iterations=1)
+    return m
 
-    # Detect wrap-around for red hue
-    if (hmax - hmin) > 60:
-        r1_hi = min(10.0+margin, hmax)
-        r2_lo = max(170.0-margin, hmin)
-        return True, hmin, hmax, (0.0, r1_hi), (r2_lo, 179.0)
-    return False, hmin, hmax, None, None
-
-def collect_pixels(frame, rect, ignore_white=True):
-    """
-    Extract H, S, V and LAB channels inside ROI.
-    Filters out low-saturation / high-value pixels to ignore glare.
-    """
-    x0,y0,x1,y1 = rect
-    roi = frame[y0:y1, x0:x1]
-    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-    lab = cv2.cvtColor(roi, cv2.COLOR_BGR2LAB)
-    H,S,V = cv2.split(hsv)
-    L,A,B = cv2.split(lab)
-
-    mask = np.ones_like(S, dtype=bool)
-    if ignore_white:
-        mask &= (S > 40) & (V < 240)
-    return H[mask], S[mask], V[mask], L[mask], A[mask], B[mask]
-
-def show_text(img, lines, y0=28, color=(255,255,255)):
-    """Display multiple lines of text on the frame."""
-    y = y0
-    for t in lines:
-        cv2.putText(img, t, (10,y), FONT, 0.58, color, 2, cv2.LINE_AA)
-        y += 22
-
-def ensure_cfg(base=None):
-    """
-    Generate a full configuration dict with default values.
-    This ensures no key is missing when saving.
-    """
-    d = dict(
-        GainS_global=GAIN_S, GainV_global=GAIN_V, Gamma_x100=int(GAMMA*100),
-        W_Smax=70, W_Vmin=190,
-        O_Hmin=5, O_Hmax=30, O_Smin=80, O_Vmin=80,
-        B_Hmin=100, B_Hmax=130, B_Smin=110, B_Vmin=40,
-        G_Hmin=40, G_Hmax=85, G_Smin=70, G_Vmin=70,
-        R1_Hmin=0, R1_Hmax=10, R2_Hmin=170, R2_Hmax=180, R_Smin=120, R_Vmin=70,
-        L_min=0, L_max=95, A_tol=25, B_tol=25, Blk_Vmax=120, Blk_Smax=120,
-    )
-    if base: d.update(base)
-    return d
-
-def save_cfg(cfg, path=CONFIG_PATH):
-    """Save configuration as JSON file."""
+def load_cfg(path=CFG_PATH):
+    try:
+        with open(path,"r") as f: return json.load(f)
+    except: return None
+def save_cfg(vals, path=CFG_PATH):
+    base = load_cfg() or {}
+    base.update(vals)
     with open(path,"w") as f:
-        json.dump(cfg, f, indent=2)
-    print(f"[OK] Saved to {path}")
+        json.dump(base, f, indent=2)
+    print("[CFG] Guardado:", path)
 
-# ===================== COLOR CALIBRATION =====================
-def calibrate_color(cat_name, cap, rect, samples=5, is_red=False):
-    """
-    Capture multiple samples of a color and compute HSV thresholds.
-    Special handling for red due to hue wrap-around.
-    """
-    allH, allS, allV = [], [], []
-    for i in range(samples):
-        while True:
-            ok, fr = cap.read()
-            if not ok: continue
-            fr = apply_gains(fr)
-            r = frac_to_rect(fr, rect)
-            draw_roi(fr, r, f"{cat_name} — capture {i+1}/{samples}")
-            show_text(fr, ["Press 'c' to capture", "Press 'q' to cancel"], y0=H-40)
-            cv2.imshow("ColorCalibrator", fr)
-            k = cv2.waitKey(1) & 0xFF
-            if k == ord('c'):
-                Hc,Sc,Vc,_,_,_ = collect_pixels(fr, r, ignore_white=True)
-                if Hc.size < 50:
-                    print("[WARN] Not enough pixels, recapture.")
-                    time.sleep(0.5)
-                    continue
-                allH.append(Hc); allS.append(Sc); allV.append(Vc)
-                break
-            elif k == ord('q'):
-                raise SystemExit("[USER] Calibration cancelled.")
+# ============== Fallback HSV (solo para viewer auxiliar) ==============
+FALLBACK = {
+    "orange": (5,35,40,50),
+    "blue":   (100,130,110,40),
+    "green":  (40,85,70,70),
+    "red1":   (0,10,120,70),
+    "red2":   (170,180,120,70),
+    "magenta":(135,165,110,70),
+}
+def mask_fallback(bgr, name):
+    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
+    if name=="orange":
+        h1,h2,s,v = FALLBACK["orange"]; return cv2.inRange(hsv,(h1,s,v),(h2,255,255))
+    if name=="blue":
+        h1,h2,s,v = FALLBACK["blue"];   return cv2.inRange(hsv,(h1,s,v),(h2,255,255))
+    if name=="green":
+        h1,h2,s,v = FALLBACK["green"];  return cv2.inRange(hsv,(h1,s,v),(h2,255,255))
+    if name=="magenta":
+        h1,h2,s,v = FALLBACK["magenta"];return cv2.inRange(hsv,(h1,s,v),(h2,255,255))
+    if name=="red":
+        h1,h2,s,v = FALLBACK["red1"]; m1=cv2.inRange(hsv,(h1,s,v),(h2,255,255))
+        h1,h2,s,v = FALLBACK["red2"]; m2=cv2.inRange(hsv,(h1,s,v),(h2,255,255))
+        return cv2.bitwise_or(m1,m2)
+    if name=="black":
+        lab=cv2.cvtColor(bgr,cv2.COLOR_BGR2LAB); L=lab[:,:,0]
+        mL=cv2.inRange(L,0,95); S=hsv[:,:,1]; V=hsv[:,:,2]
+        return cv2.bitwise_and(mL, cv2.inRange(S,0,120) & cv2.inRange(V,0,120))
+    return np.zeros(bgr.shape[:2], np.uint8)
 
-    Hc = np.concatenate(allH); Sc = np.concatenate(allS); Vc = np.concatenate(allV)
-    Smin = max(0, int(percentiles(Sc, 20, 95)[0] - 20))
-    Vmin = max(0, int(percentiles(Vc, 20, 95)[0] - 20))
+# ============== Tuner UI (misma que Obstacle) ==============
+def build_tuner(cfg):
+    cv2.namedWindow("TUNING", cv2.WINDOW_NORMAL); cv2.resizeWindow("TUNING", 480, 320)
+    cv2.createTrackbar("GainS_gl x100", "TUNING", cfg["GainS_global"], 300, lambda x: None)
+    cv2.createTrackbar("GainV_gl x100", "TUNING", cfg["GainV_global"], 300, lambda x: None)
+    cv2.createTrackbar("Gamma x100",    "TUNING", cfg["Gamma_x100"],  300, lambda x: None)
+    cv2.createTrackbar("Kernel",         "TUNING", cfg["Kernel"],       15, lambda x: None)
+def read_tuner():
+    g=lambda n: cv2.getTrackbarPos(n,"TUNING")
+    return dict(
+        GainS_global=g("GainS_gl x100"),
+        GainV_global=g("GainV_gl x100"),
+        Gamma_x100=g("Gamma x100"),
+        Kernel=max(1, g("Kernel")|1)
+    )
 
-    # Special handling for RED
-    if is_red:
-        wrap, hmin, hmax, r1, r2 = tight_h_range(Hc)
-        if wrap and r1 and r2:
-            return dict(
-                R1_Hmin=int(round(r1[0])), R1_Hmax=int(round(r1[1])),
-                R2_Hmin=int(round(r2[0])), R2_Hmax=int(round(r2[1])),
-                R_Smin=int(Smin), R_Vmin=int(Vmin),
-            )
-        else:
-            return dict(
-                R1_Hmin=int(round(hmin)), R1_Hmax=int(round(hmax)),
-                R2_Hmin=179, R2_Hmax=179,
-                R_Smin=int(Smin), R_Vmin=int(Vmin),
-            )
-    else:
-        h5,h95 = percentiles(Hc, 5, 95)
-        Hmin = int(max(0, h5 - 5))
-        Hmax = int(min(179, h95 + 5))
-        if cat_name.upper().startswith("GREEN"):
-            return dict(G_Hmin=Hmin, G_Hmax=Hmax, G_Smin=Smin, G_Vmin=Vmin)
-        elif cat_name.upper().startswith("BLUE"):
-            return dict(B_Hmin=Hmin, B_Hmax=Hmax, B_Smin=Smin, B_Vmin=Vmin)
-        elif cat_name.upper().startswith("ORANGE"):
-            return dict(O_Hmin=Hmin, O_Hmax=Hmax, O_Smin=Smin, O_Vmin=Vmin)
-        else:
-            return {}
+# ============== Viewer overlay (usa LAB si hay modelo) ==============
+def overlay_verification(frame_bgr, models, ker):
+    def draw_mask(name, rect, keys, color, min_area=0):
+        x0,y0,x1,y1 = rect; roi = frame_bgr[y0:y1,x0:x1]
+        acc=None
+        for k in keys:
+            mdl = models.get(k)
+            if mdl is not None:
+                m = mahalanobis_mask_from_model(roi, mdl)
+            else:
+                # fallback HSV solo para visual
+                fallback_name = {"ORANGE":"orange","BLUE":"blue","RED":"red","GREEN":"green",
+                                 "BLACK":"black","MAGENTA":"magenta"}[k]
+                m = mask_fallback(roi, fallback_name)
+            kx = cv2.getStructuringElement(cv2.MORPH_RECT,(ker,ker))
+            m = cv2.morphologyEx(m, cv2.MORPH_OPEN, kx, iterations=1)
+            m = cv2.morphologyEx(m, cv2.MORPH_CLOSE,kx, iterations=1)
+            acc = m if acc is None else cv2.bitwise_or(acc,m)
+        draw_roi(frame_bgr, (x0,y0,x1,y1), name, color)
+        if acc is None: return
+        cnt, area = largest_contour(acc)
+        if cnt is not None and area>=min_area:
+            cv2.drawContours(roi,[cnt],-1,color,2)
+        cv2.addWeighted(roi,0.65,cv2.cvtColor(acc,cv2.COLOR_GRAY2BGR),0.35,0,roi)
 
-def calibrate_black(cap, rect, samples=5):
-    """
-    Capture black wall/floor samples and calculate LAB + HSV thresholds.
-    """
-    allL, allA, allB, allS, allV = [], [], [], [], []
-    for i in range(samples):
-        while True:
-            ok, fr = cap.read()
-            if not ok: continue
-            fr = apply_gains(fr)
-            r = frac_to_rect(fr, rect)
-            draw_roi(fr, r, f"BLACK — capture {i+1}/{samples}", (255,0,255))
-            cv2.imshow("ColorCalibrator", fr)
-            k = cv2.waitKey(1) & 0xFF
-            if k == ord('c'):
-                _,_,_,L,A,B = collect_pixels(fr, r, ignore_white=False)
-                hsv = cv2.cvtColor(fr[r[1]:r[3], r[0]:r[2]], cv2.COLOR_BGR2HSV)
-                S = hsv[:,:,1].flatten(); V = hsv[:,:,2].flatten()
-                allL.append(L); allA.append(A); allB.append(B); allS.append(S); allV.append(V)
-                break
-            elif k == ord('q'):
-                raise SystemExit("[USER] Calibration cancelled.")
+    lineR  = frac_to_rect(frame_bgr, ROIS["LINE_BOT"])
+    ctrR   = frac_to_rect(frame_bgr, ROIS["CENTER_BAND"])
+    turnR  = frac_to_rect(frame_bgr, ROIS["TURN_CENTER"])
+    wallL  = frac_to_rect(frame_bgr, ROIS["WALL_L"])
+    wallR  = frac_to_rect(frame_bgr, ROIS["WALL_R"])
 
-    L = np.concatenate(allL); A = np.concatenate(allA); B = np.concatenate(allB)
-    S = np.concatenate(allS); V = np.concatenate(allV)
-    Lmax = int(min(255, percentiles(L, 95, 99)[0] + 5))
-    Amean = float(np.mean(A)); Bmean = float(np.mean(B))
-    Atol = int(min(64, max(20, abs(Amean-128)+10)))
-    Btol = int(min(64, max(20, abs(Bmean-128)+10)))
-    Blk_Smax = int(min(255, percentiles(S, 90, 99)[0]))
-    Blk_Vmax = int(min(255, percentiles(V, 90, 99)[0]))
+    draw_mask("LINE_BOT",    lineR, ["ORANGE","BLUE"], (0,200,255), 250)
+    draw_mask("CENTER_BAND", ctrR,  ["RED","GREEN","MAGENTA"], (0,255,255), 400)
+    draw_mask("TURN_CENTER", turnR, ["BLACK"], (0,255,200), 1000)
+    draw_mask("WALL_L",      wallL, ["BLACK","MAGENTA"], (255,0,255), 800)
+    draw_mask("WALL_R",      wallR, ["BLACK","MAGENTA"], (255,0,255), 800)
 
-    return dict(L_min=0, L_max=Lmax, A_tol=Atol, B_tol=Btol,
-                Blk_Smax=Blk_Smax, Blk_Vmax=Blk_Vmax)
-
-# ===================== MAIN =====================
+# ============== Main ==============
 def main():
-    # --- Open camera ---
+    # camera
     cap = cv2.VideoCapture(CAM_INDEX, cv2.CAP_V4L2)
     if not cap.isOpened(): cap = cv2.VideoCapture(CAM_INDEX)
     if not cap.isOpened(): raise SystemExit("[ERROR] No camera.")
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, W)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, H)
-    cap.set(cv2.CAP_PROP_FPS, 30)
-    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH,W)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT,H)
+    cap.set(cv2.CAP_PROP_FPS,FPS)
+    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*FOURCC))
 
-    # --- UI Window ---
-    cv2.namedWindow("ColorCalibrator", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("ColorCalibrator", 960, 720)
+    # capture ROI
+    dummy = np.zeros((H,W,3), np.uint8)
+    base_rect = frac_to_rect(dummy, CAPTURE_RECT_FRAC)
+    cap_rect  = shrink_rect_centered(base_rect, CAPTURE_KEEP_FRAC)
 
-    # --- Load existing config if any ---
-    try:
-        with open(CONFIG_PATH,"r") as f:
-            base = json.load(f)
-    except Exception:
-        base = None
-    cfg = ensure_cfg(base)
+    # tuner
+    cfg = load_cfg() or DEFAULTS.copy()
+    cfg = {**DEFAULTS, **{k:cfg.get(k,DEFAULTS[k]) for k in DEFAULTS}}
+    build_tuner(cfg)
 
-    print("\n=== ColorCalibrator ===")
-    print("Instructions:")
-    print(" - Place the object inside the yellow ROI.")
-    print(" - Press 'c' to capture each of the 5 samples.")
-    print(" - Press 'q' to cancel.\n")
+    selected = CLASSES[0]
+    models_now = {}  # dict NOMBRE->modelo
+    view_masks = True
 
-    # --- Calibration sequence ---
-    cfg.update(calibrate_color("GREEN block", cap, ROI_BLOCK, samples=5, is_red=False))
-    cfg.update(calibrate_color("RED block", cap, ROI_BLOCK, samples=5, is_red=True))
-    cfg.update(calibrate_color("BLUE line", cap, ROI_LINE, samples=5, is_red=False))
-    cfg.update(calibrate_color("ORANGE line", cap, ROI_LINE, samples=5, is_red=False))
-    cfg.update(calibrate_black(cap, ROI_BLACK, samples=5))
+    help_lines = [
+        "LAB Calibrator+Viewer — same preprocessing as runtime",
+        "[1..6] class  (1=ORANGE,2=BLUE,3=RED,4=GREEN,5=BLACK,6=MAGENTA)",
+        "[c] capture   [p] process   [v] view masks   [s] save JSON+CFG   [q] quit",
+        f"MODEL: {MODEL_PATH}",
+        f"CFG:   {CFG_PATH}",
+    ]
 
-    # --- Save configuration ---
-    save_cfg(cfg, CONFIG_PATH)
+    while True:
+        ok, frame = cap.read()
+        if not ok: continue
 
-    # --- Display summary window ---
-    for t in range(60):
-        ok, fr = cap.read()
-        if not ok: break
-        fr = apply_gains(fr)
-        draw_roi(fr, frac_to_rect(fr, ROI_BLOCK), "ROI BLOCK", (0,255,255))
-        draw_roi(fr, frac_to_rect(fr, ROI_LINE), "ROI LINE", (0,255,255))
-        draw_roi(fr, frac_to_rect(fr, ROI_BLACK), "ROI BLACK", (255,0,255))
-        show_text(fr, ["Calibration saved.", os.path.basename(CONFIG_PATH), "Press 'q' to close"], y0=28)
-        cv2.imshow("ColorCalibrator", fr)
-        k = cv2.waitKey(50) & 0xFF
-        if k == ord('q'): break
+        # read tuner and apply same preprocessing used in runtime
+        P = read_tuner()
+        frame_proc = apply_global_gains(frame, P["GainS_global"], P["GainV_global"], P["Gamma_x100"])
 
-    cap.release()
-    cv2.destroyAllWindows()
-    print("[INFO] Done.")
+        # HUD
+        y = 22
+        for t in help_lines: cv2.putText(frame_proc, t, (10,y), FONT, 0.55, (255,255,255),2,cv2.LINE_AA); y+=22
+        cv2.putText(frame_proc, f"[SEL] {selected}", (10,y+5), FONT, 0.65, (0,255,255),2,cv2.LINE_AA)
+        draw_roi(frame_proc, cap_rect, "CAPTURE ROI (80% smaller)", (0,255,255))
+
+        # Viewer overlay (con la MISMA imagen preprocesada)
+        if view_masks and len(models_now)>0:
+            overlay_verification(frame_proc, models_now, P["Kernel"])
+
+        cv2.imshow("LAB-Cal+Viewer (Mahalanobis)", frame_proc)
+        k = cv2.waitKey(1) & 0xFF
+
+        if k in [ord('1'),ord('2'),ord('3'),ord('4'),ord('5'),ord('6')]:
+            selected = CLASSES[int(chr(k))-1]
+
+        elif k == ord('c'):
+            # toma muestras del frame ya preprocesado
+            x0,y0,x1,y1 = cap_rect
+            roi = frame_proc[y0:y1, x0:x1]
+            lab = cv2.cvtColor(roi, cv2.COLOR_BGR2LAB)
+            A = lab[:,:,1].ravel().astype(np.float32)
+            B = lab[:,:,2].ravel().astype(np.float32)
+            if A.size > 6000:
+                idx = np.random.choice(A.size, 6000, replace=False)
+                A = A[idx]; B = B[idx]
+            state[selected]["a"].extend(A.tolist())
+            state[selected]["b"].extend(B.tolist())
+            print(f"[{selected}] muestras: {len(state[selected]['a'])}")
+
+        elif k == ord('p'):
+            models_now = {}
+            for cls in CLASSES:
+                m = compute_maha_model(state[cls]["a"], state[cls]["b"], TAU2)
+                if m: models_now[cls] = m
+            print("[INFO] Clases calibradas:", list(models_now.keys()))
+
+        elif k == ord('v'):
+            view_masks = not view_masks
+
+        elif k == ord('s'):
+            # Guardar modelos con nombres cortos + metadatos de preprocesado
+            save_obj = dict(
+                meta=dict(space="LAB_AB_mahalanobis",
+                          tau2=float(TAU2),
+                          created=time.strftime("%Y-%m-%d %H:%M:%S"),
+                          preprocessing=dict(
+                              GainS_global=P["GainS_global"],
+                              GainV_global=P["GainV_global"],
+                              Gamma_x100=P["Gamma_x100"],
+                              Kernel=P["Kernel"]
+                          )),
+                classes={}
+            )
+            for k0, model in models_now.items():
+                save_obj["classes"][name_map_save[k0]] = model
+            try:
+                with open(MODEL_PATH,"w") as f: json.dump(save_obj,f,indent=2)
+                print(f"[OK] Guardado modelo: {MODEL_PATH}")
+            except Exception as e:
+                print(f"[ERR] Modelo: {e}")
+            # Guardar CFG para que Obstacle vea igual
+            save_cfg(dict(GainS_global=P["GainS_global"],
+                          GainV_global=P["GainV_global"],
+                          Gamma_x100=P["Gamma_x100"],
+                          Kernel=P["Kernel"]))
+
+        elif k == ord('q'):
+            break
+
+    cap.release(); cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()

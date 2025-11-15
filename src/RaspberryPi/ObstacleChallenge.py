@@ -5,15 +5,15 @@ Team Rulo Bot — Exit (WHITE L/R) -> Obstacle FULL (RGB/M + TURN + RUN)
 
 Fase 1 (Salida):
   - Decide EXT (LEFT/RIGHT) por blancos laterales y envía EXT:* al Nano.
+  - Fija el sentido de giro (L/R) en el primer momento donde ve blanco claro (ext_dir_at_start).
   - Espera "[SEQ] END" del Nano (o tecla X para saltar).
-  - La decisión de sentido (LEFT/RIGHT) se CONGELA cuando el Nano envía "GO"
-    (botón), o en su defecto al hacer skip ('x') o al recibir [SEQ] END.
   - Al pasar a Obstacle: TURN_OFF + servo al centro.
 
 Fase 2 (Obstacle):
   - Evasión de pilares R/G/M con prioridad MAG sobre RED (red_clean = red - magenta)
-  - TURN_CENTER con histéresis + lockout post-salida + timeout anti-pegado
   - RUN: centrado lateral usando pared = negro + magenta (gating por proximidad)
+        con ROIs tipo "OPEN" (laterales altos).
+  - Wall guards L/R solo en AVOID (usando ROIs bajos).
   - Líneas naranja/azul solo cuentan (no deciden sentido)
   - ROIs y overlays SIEMPRE visibles
   - Teclas: q (salir), s (guardar CFG), r (reset CFG), m (visor MAG/RED), x (saltar salida)
@@ -68,9 +68,9 @@ DEFAULTS = {
     "TurnBias_deg": 28, "TurnCenter_area_T": 400, "TurnCenter_hyst_x100": 60,
     "Turn_lockout_s": 1.0,
     "Turn_max_time_s": 1.2,
-    # ------- Wall Guards -------
+    # ------- Wall Guards (solo AVOID) -------
     "WALL_area_T": 700, "WALL_corr_deg": 8,
-    # ------- RUN side-centering -------
+    # ------- RUN side-centering (tipo OPEN) -------
     "Run_Kp_x100": 8, "Run_Kd_x100": 18, "Run_Max_deg": 9,
     # ------- MAG como pared (GATING por proximidad) -------
     "MAG_as_wall_gain_x100": 100,
@@ -82,6 +82,8 @@ DEFAULTS = {
     "Mag_gain_near_x100": 100,
     "Mag_gain_ramp": 1,
     "Mag_ignore_after_exit_s": 1.2,
+    # ------- Ajuste de prioridad para ROJO -------
+    "Red_area_scale_x100": 120,  # 1.20x → detecta rojo un poco antes
 }
 
 # ===================== CFG helpers =====================
@@ -217,7 +219,7 @@ def mask_black(bgr, P):
     L = lab[:,:,0]; A = lab[:,:,1]; B = lab[:,:,2]
     mL = cv2.inRange(L, P["L_min"], P["L_max"])
     mA = cv2.inRange(A, 128-P["A_tol"], 128+P["A_tol"])
-    mB = cv2.inRange(B, P["B_tol"], 128+P["B_tol"])
+    mB = cv2.inRange(B, 128-P["B_tol"], 128+P["B_tol"])
     mLAB = cv2.bitwise_and(cv2.bitwise_and(mL,mA), mB)
     hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
     mHSV = cv2.inRange(hsv[:,:,1], 0, P["Blk_Smax"]) & cv2.inRange(hsv[:,:,2], 0, P["Blk_Vmax"])
@@ -227,15 +229,24 @@ def mask_black(bgr, P):
     return m
 
 # ===================== ROIs =====================
+# Salida (solo BLANCO laterales)
 WHITE_L_ROI = (0.00, 0.70, 0.30, 0.90)
 WHITE_R_ROI = (0.70, 0.70, 1.00, 0.90)
+
+# Obstacle
 ROIS = {
     "LINE_BOT":    (0.25, 0.87, 0.75, 0.95),
     "CENTER_BAND": (0.00, 0.42, 1.00, 1.00),
     "TURN_CENTER": (0.45, 0.48, 0.55, 0.85),
 }
+
+# Wall guards (solo AVOID, cerca del frente)
 WALL_L_ROI  = (0.13, 0.85, 0.24, 1.00)
 WALL_R_ROI  = (0.76, 0.85, 0.87, 1.00)
+
+# RUN-side-centering (tipo OPEN: laterales altos)
+RUN_L_ROI   = (0.02, 0.55, 0.18, 0.95)
+RUN_R_ROI   = (0.82, 0.55, 0.98, 0.95)
 
 def frac_to_rect(img, f):
     h,w = img.shape[:2]
@@ -282,12 +293,7 @@ def masks_magenta_red_with_priority(roi_bgr, kernel_size):
     mR_clean = cv2.bitwise_and(mR, cv2.bitwise_not(mM))  # rojo limpio
     return mM, mR_clean
 
-def detect_pillars_rgbm(proc_bgr, det_rect, kernel_size, min_area, show_view=False):
-    """
-    Detección de pilares RGB/M con prioridad MAG > RED.
-    Devuelve para cada color: (cx_global, area_px).
-    Además ahora DIBUJA el área en px al lado de cada bbox.  ### DEBUG AREA
-    """
+def detect_pillars_rgbm(proc_bgr, det_rect, kernel_size, min_area, P, show_view=False):
     x0,y0,x1,y1 = det_rect
     roi = proc_bgr[y0:y1, x0:x1].copy()
 
@@ -310,45 +316,36 @@ def detect_pillars_rgbm(proc_bgr, det_rect, kernel_size, min_area, show_view=Fal
             x,y,w,h = cv2.boundingRect(cG); cx = x+w//2
             cv2.rectangle(roi,(x,y),(x+w,y+h),(0,255,0),2)
             cv2.circle(roi,(cx,y+h//2),4,(255,255,255),-1)
-            # --- texto con área ---
-            cv2.putText(roi, f"G:{int(aG)}", (x, max(y-5, 12)),
-                        FONT, 0.5, (0,255,0), 2, cv2.LINE_AA)   # ### DEBUG AREA
+            cv2.putText(roi, f"G:{int(aG)}", (x, max(y-6,10)), FONT, 0.5, (0,255,0), 2, cv2.LINE_AA)
             out['G'] = (cx+x0, float(aG))
 
-    # RED
+    # RED (área escalada para lógica)
     if cRs:
-        cR = cRs[0]; aR = cv2.contourArea(cR)
+        cR = cRs[0]; aR_raw = cv2.contourArea(cR)
+        scale = P.get("Red_area_scale_x100",100)/100.0
+        aR = aR_raw * scale
         if aR >= min_area:
             x,y,w,h = cv2.boundingRect(cR); cx = x+w//2
             cv2.rectangle(roi,(x,y),(x+w,y+h),(0,0,255),2)
             cv2.circle(roi,(cx,y+h//2),4,(255,255,255),-1)
-            cv2.putText(roi, f"R:{int(aR)}", (x, max(y-5, 12)),
-                        FONT, 0.5, (0,0,255), 2, cv2.LINE_AA)  # ### DEBUG AREA
+            cv2.putText(roi, f"R:{int(aR_raw)}", (x, max(y-6,10)), FONT, 0.5, (0,0,255), 2, cv2.LINE_AA)
             out['R'] = (cx+x0, float(aR))
 
-    # MAGENTA (mejor de 2)
-    best_M = (None, 0.0)
-    best_box = None
+    # MAGENTA (hasta 2)
+    best_M = (None, 0.0, None)  # cx, area, contour
     for cM in cMs:
         aM = cv2.contourArea(cM)
         if aM < min_area: continue
         x,y,w,h = cv2.boundingRect(cM); cx = x+w//2
         cv2.rectangle(roi,(x,y),(x+w,y+h),(255,0,255),2)
         cv2.circle(roi,(cx,y+h//2),4,(255,255,255),-1)
+        cv2.putText(roi, f"M:{int(aM)}", (x, max(y-6,10)), FONT, 0.5, (255,0,255), 2, cv2.LINE_AA)
         if aM > best_M[1]:
-            best_M = (cx+x0, float(aM))
-            best_box = (x,y,w,h)
+            best_M = (cx+x0, float(aM), cM)
     if best_M[0] is not None:
-        # área magenta dominante
-        if best_box is not None:
-            x,y,w,h = best_box
-            cv2.putText(roi, f"M:{int(best_M[1])}", (x, max(y-5, 12)),
-                        FONT, 0.5, (255,0,255), 2, cv2.LINE_AA)  # ### DEBUG AREA
-        out['M'] = best_M
+        out['M'] = (best_M[0], best_M[1])
 
     proc_bgr[y0:y1, x0:x1] = roi
-    cv2.putText(proc_bgr, f"M_cnt={len(cMs)}", (x0+6, y0+18), FONT, 0.55, (255,0,255), 2, cv2.LINE_AA)
-    cv2.putText(proc_bgr, f"R_clean={'Y' if cRs else 'N'}", (x0+6, y0+38), FONT, 0.55, (0,0,255), 2, cv2.LINE_AA)
 
     if show_view:
         vis0 = roi
@@ -391,7 +388,7 @@ def magenta_nearness(roi_bgr, kernel, frame_h, y0_pct=72, hmin_px=42, area_min=1
 # ===================== Main =====================
 _stop=False
 VIEW_RM=False
-def _sig(_s,_f): 
+def _sig(_s,_f):
     global _stop; _stop=True
 
 def main():
@@ -412,21 +409,22 @@ def main():
     P = load_cfg()
     build_tuner()
 
-    # ======== FASE 1: Decide EXT con BLANCO L/R y espera fin de salida ========
+    # ======== FASE 1: Decide EXT con BLANCO L/R y fija sentido al inicio ========
     win = "RuloBot — Exit by WHITE (L/R)"
     cv2.namedWindow(win, cv2.WINDOW_NORMAL); cv2.resizeWindow(win, 960, 720)
 
     rx=b""; exit_done=False
-    last_ext_dir='L'   # 'L' o 'R'
+    last_ext_dir='L'        # 'L' o 'R'
+    ext_dir_at_start=None   # valor "fijado" al inicio de la salida
     last_sent=0.0
-    locked_turn = None   # se fija cuando llega GO / skip / [SEQ] END
 
-    print("[INFO] WHITE L/R activos. Pulsa botón en el Nano o presiona 'X' para saltar.")
+    print("[INFO] WHITE L/R activos. Fijando sentido con el primer blanco claro. Tecla X para saltar.")
     while (not exit_done) and (not _stop):
         ok, f = cap.read()
         if not ok: continue
         if MIRROR_X: f = cv2.flip(f, 1)
 
+        # Tuning dinámico
         P = read_tuner(P)
 
         fp = apply_global_gains(f, P["GainS_global"], P["GainV_global"], P["Gamma_x100"])
@@ -436,20 +434,20 @@ def main():
         wL = cv2.countNonZero(mask_color(fp[Lr[1]:Lr[3], Lr[0]:Lr[2]], "white"))
         wR = cv2.countNonZero(mask_color(fp[Rr[1]:Rr[3], Rr[0]:Rr[2]], "white"))
         last_ext_dir = 'R' if (wR>wL) else 'L'
-        current_sense = 'RIGHT' if last_ext_dir=='R' else 'LEFT'
+
+        # 🔒 Fijar dirección al inicio (primeros frames donde ve blanco)
+        if ext_dir_at_start is None and (wL>0 or wR>0):
+            ext_dir_at_start = last_ext_dir
 
         now = time.time()
         if ser and (now-last_sent)>=0.25:
-            send(ser, f"EXT:{current_sense}")
+            send(ser, f"EXT:{'RIGHT' if last_ext_dir=='R' else 'LEFT'}")
             last_sent = now
 
         draw_roi(fp, Lr, f"WHITE_L:{wL}", (0,255,255))
         draw_roi(fp, Rr, f"WHITE_R:{wR}", (0,255,255))
-
-        lock_txt = "LOCK:? "
-        if locked_turn == 'L': lock_txt = "LOCK:LEFT "
-        elif locked_turn == 'R': lock_txt = "LOCK:RIGHT"
-        cv2.putText(fp, f"EXT -> {current_sense}   (X = skip)   {lock_txt}",
+        dir_txt = ext_dir_at_start if ext_dir_at_start is not None else last_ext_dir
+        cv2.putText(fp, f"EXT -> {'RIGHT' if last_ext_dir=='R' else 'LEFT'}  LOCKED:{dir_txt or '-'}   (X = skip)",
                     (10,30), FONT, 0.7, (255,255,255), 2)
         cv2.imshow(win, fp)
 
@@ -461,9 +459,6 @@ def main():
         elif key==ord('r'):
             P = load_cfg()
         elif key==ord('x'):
-            if locked_turn is None:
-                locked_turn = last_ext_dir
-                print(f"[DIR] LOCKED by skip (X): {locked_turn}")
             print("[INFO] Salto manual de salida → Obstacle.")
             exit_done = True
             break
@@ -473,37 +468,32 @@ def main():
                 try: cv2.destroyWindow("Viewer MAGENTA/RED")
                 except: pass
 
+        # RX de eventos: aquí solo nos importa [SEQ] END
         if ser and ser.in_waiting:
             rx += ser.read(ser.in_waiting)
             while b"\n" in rx:
                 line, rx = rx.split(b"\n",1)
                 s=line.decode(errors='ignore').strip()
-                sup = s.upper()
-                if sup=="GO":
-                    if locked_turn is None:
-                        locked_turn = last_ext_dir
-                        print(f"[DIR] LOCKED by GO: {locked_turn}")
-                if s.startswith("[SEQ] END"):
+                s_upper = s.upper()
+                if s_upper.startswith("[SEQ] END"):
                     print("[INFO] Exit por encoder finalizado.")
                     exit_done=True
                     break
 
     if not exit_done and not _stop:
         cap.release(); cv2.destroyAllWindows()
-        if ser: 
+        if ser:
             try: ser.close()
             except: pass
         return
 
-    if locked_turn is None:
-        locked_turn = last_ext_dir
-        print(f"[DIR] LOCKED fallback at END: {locked_turn}")
+    # Si por alguna razón no se fijó, usar el último valor observado
+    if ext_dir_at_start is None:
+        ext_dir_at_start = last_ext_dir
 
+    # Anti “ángulo pegado”
     if ser:
-        send(ser,"TURN_OFF")
-        send(ser,"STEER:84")
-        time.sleep(0.05)
-        send(ser,"STEER:84")
+        send(ser,"TURN_OFF"); send(ser,"STEER:84"); time.sleep(0.05); send(ser,"STEER:84")
 
     exit_ts = time.time()
     time.sleep(0.2)
@@ -513,9 +503,12 @@ def main():
     cv2.namedWindow(win2, cv2.WINDOW_NORMAL); cv2.resizeWindow(win2, 960, 720)
 
     SERVO_CENTER_CMD=84
-    selected_turn = 'R' if locked_turn=='R' else 'L'
-    print(f"[OBST] Direccion de bias TURN fija (locked): {selected_turn}")
 
+    # 👉 Usamos SOLO el valor fijado al inicio de la salida
+    selected_turn = 'R' if ext_dir_at_start=='R' else 'L'
+    print(f"[OBST] Direccion de bias TURN fija (desde EXIT): {selected_turn}")
+
+    # Línea: solo contador
     O_MIN_FRAC = 0.015; O_MIN_H = 7
     B_MIN_FRAC = 0.015; B_MIN_H = 7
     LINE_COOLDOWN_S = 3.0; NUM_LINES_TO_STOP = 13
@@ -542,18 +535,25 @@ def main():
         P = read_tuner(P)
         frame = apply_global_gains(f, P["GainS_global"], P["GainV_global"], P["Gamma_x100"])
 
+        # ROIs
         lineR = frac_to_rect(frame, ROIS["LINE_BOT"])
         detR  = frac_to_rect(frame, ROIS["CENTER_BAND"])
         turnR = frac_to_rect(frame, ROIS["TURN_CENTER"])
         wallL = frac_to_rect(frame, WALL_L_ROI)
         wallR = frac_to_rect(frame, WALL_R_ROI)
+        runL  = frac_to_rect(frame, RUN_L_ROI)
+        runR  = frac_to_rect(frame, RUN_R_ROI)
 
+        # ROIs visibles
         draw_roi(frame, lineR, "LINE_BOT", (200,200,0))
         draw_roi(frame, detR,  "CENTER_BAND (R/G/M)", (0,255,255))
         draw_roi(frame, turnR, "TURN_CENTER", (0,200,255))
-        draw_roi(frame, wallL, "WALL_L", (0,255,0))
-        draw_roi(frame, wallR, "WALL_R", (0,255,0))
+        draw_roi(frame, wallL, "WALL_L (guard)", (0,255,0))
+        draw_roi(frame, wallR, "WALL_R (guard)", (0,255,0))
+        draw_roi(frame, runL,  "RUN_L", (255,0,0))
+        draw_roi(frame, runR,  "RUN_R", (255,0,0))
 
+        # ---- Líneas (contador) ----
         def detect_area(rect, color_name):
             x0,y0,x1,y1 = rect
             roi = frame[y0:y1, x0:x1].copy()
@@ -583,16 +583,12 @@ def main():
                 send(ser,"STOP")
 
         # ---- Pilares (RGB/M) ----
-        pillars = detect_pillars_rgbm(frame, detR, P["Kernel"], P["PillarMinArea"], show_view=VIEW_RM)
+        pillars = detect_pillars_rgbm(frame, detR, P["Kernel"], P["PillarMinArea"], P, show_view=VIEW_RM)
         R_cx,R_area = pillars['R']
         G_cx,G_area = pillars['G']
         M_cx,M_area = pillars['M']
 
-        # HUD extra con áreas de pilares  ### DEBUG AREA
-        cv2.putText(frame,
-                    f"Areas px  R={int(R_area)}  G={int(G_area)}  M={int(M_area)}",
-                    (10, 64), FONT, 0.55, (0,255,255), 2, cv2.LINE_AA)
-
+        # ---- TURN_CENTER negro con histéresis + lockout + timeout ----
         tx0,ty0,tx1,ty1 = turnR
         roi_turn = frame[ty0:ty1, tx0:tx1].copy()
         m_turn = mask_black(roi_turn, P)
@@ -613,6 +609,7 @@ def main():
                 turning=False; turn_deadline=None
                 if ser: send(ser,"TURN_OFF")
 
+        # ======= Selección de modo =======
         pillar_active = ((R_area>=P["PillarMinArea"]) or (G_area>=P["PillarMinArea"]) or (M_area>=P["PillarMinArea"]))
         if pillar_active:
             mode = "AVOID"
@@ -631,6 +628,7 @@ def main():
             return (min(x0,x1),min(y0,y1),max(x0,x1),max(y0,y1))
 
         if mode=="AVOID":
+            # Elegir el color dominante por área (MAG no bloquea RED, solo lo limpia)
             ctrl = max([('R',R_area,R_cx), ('G',G_area,G_cx), ('M',M_area,M_cx)], key=lambda t:t[1])
             ctrl_color, ctrl_area, ctrl_cx = ctrl
             err = 0.0
@@ -649,6 +647,7 @@ def main():
             Kd = P["Kd_target_x100"]/100.0
             u = float(np.clip(Kp*err + Kd*d_err, -P["TargetMax_deg"], P["TargetMax_deg"]))
 
+            # Wall guards (solo aquí)
             def wall_area(rect):
                 x0,y0,x1,y1 = rect
                 roi = frame[y0:y1, x0:x1]
@@ -678,10 +677,11 @@ def main():
                         (10,44), FONT, 0.55, (0,200,255),2)
 
         else:
-            wl_x0,wl_y0,wl_x1,wl_y1 = wallL
-            wr_x0,wr_y0,wr_x1,wr_y1 = wallR
-            roiL = frame[wl_y0:wl_y1, wl_x0:wl_x1].copy()
-            roiR = frame[wr_y0:wr_y1, wr_x0:wr_x1].copy()
+            # RUN: centrado lateral con ROIs altos → negro + magenta (gating)
+            rl_x0,rl_y0,rl_x1,rl_y1 = runL
+            rr_x0,rr_y0,rr_x1,rr_y1 = runR
+            roiL = frame[rl_y0:rl_y1, rl_x0:rl_x1].copy()
+            roiR = frame[rr_y0:rr_y1, rr_x0:rr_x1].copy()
 
             mBL = mask_black(roiL, P); areaBL = float(cv2.countNonZero(mBL))
             mBR = mask_black(roiR, P); areaBR = float(cv2.countNonZero(mBR))
@@ -710,6 +710,7 @@ def main():
             if mag_nearL_fr < int(P["Mag_near_stable_fr"]): gL = min(gL, P["Mag_gain_far_x100"]/100.0)
             if mag_nearR_fr < int(P["Mag_near_stable_fr"]): gR = min(gR, P["Mag_gain_far_x100"]/100.0)
 
+            # Ignorar magenta un ratito al salir del parqueo
             if (time.time() - exit_ts) <= float(P["Mag_ignore_after_exit_s"]):
                 gL = 0.0; gR = 0.0
 
@@ -719,14 +720,15 @@ def main():
             areaL = areaBL + gL * areaML
             areaR = areaBR + gR * areaMR
 
+            # overlays
             cv2.addWeighted(roiL,0.6, cv2.cvtColor(mBL,cv2.COLOR_GRAY2BGR),0.25, 0, roiL)
             cv2.addWeighted(roiR,0.6, cv2.cvtColor(mBR,cv2.COLOR_GRAY2BGR),0.25, 0, roiR)
             if cML is not None:
                 x,y,w,h = cv2.boundingRect(cML); cv2.rectangle(roiL,(x,y),(x+w,y+h),(255,0,255),2)
             if cMR is not None:
                 x,y,w,h = cv2.boundingRect(cMR); cv2.rectangle(roiR,(x,y),(x+w,y+h),(255,0,255),2)
-            frame[wl_y0:wl_y1, wl_x0:wl_x1] = roiL
-            frame[wr_y0:wr_y1, wr_x0:wr_x1] = roiR
+            frame[rl_y0:rl_y1, rl_x0:rl_x1] = roiL
+            frame[rr_y0:rr_y1, rr_x0:rr_x1] = roiR
 
             err = areaL - areaR
             d_err = err - prev_err_run; prev_err_run = err
@@ -736,6 +738,7 @@ def main():
             steer_cmd = SERVO_CENTER_CMD + int(round(u))
             cv2.putText(frame, f"MODE:RUN u={u:.1f}", (10, 44), FONT, 0.55, (0,255,255),2)
 
+        # Clamp + TX
         steer_cmd = int(np.clip(steer_cmd, 24, 144))
         if ser and (time.time()-last_tx)>=TX_PERIOD:
             send(ser, f"STEER:{steer_cmd}")
@@ -765,3 +768,4 @@ def main():
 
 if __name__=="__main__":
     main()
+
